@@ -1,0 +1,19 @@
+<odoo>
+    <record id="product_multi_uom_price_form_view" model="ir.ui.view">
+        <field name="name">product.multi.uom.price.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='pos']" position="inside">
+                    <group name="uom_price" attrs="{'invisible': [('available_in_pos', '=', False)]}">
+                    	<field name="multi_uom_price_id" context="{'default_product_id': id}" domain="[('product_id','=',id)]">
+                            <tree>
+                                <field name="uom_id"/>
+                                <field name="price"/>
+                            </tree>
+                        </field>                                
+                    </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

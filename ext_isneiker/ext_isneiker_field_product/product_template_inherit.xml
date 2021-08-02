@@ -1,0 +1,27 @@
+<odoo>
+  <data>
+
+     <record id="product_templete_inerhit" model="ir.ui.view">
+        <field name="name">product.templete.inerhit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='barcode']" position="after">  
+                      
+                <!--field name="sublineas" string="Sub Lineas"/>
+                <field name="modelo_id" string="Modelo del Producto" />
+                <field name="tipo_id" string="Tipo / Categoría" />
+                <field name="color" string="Color"/>
+                <field name="formato" string="Formato"/>
+                <field name="uso" string="Uso"/>
+                <field name="material" string="Material"/-->
+                <field name="marca_comercial" string="Marca Comercial"/>
+                <!--field name="calidad" string="Calidad"/>
+                <field name="uni_neg_id" string="Unidad de Negocios" /-->
+              
+            </xpath>
+        </field>
+    </record>     	 
+
+  </data>
+</odoo>

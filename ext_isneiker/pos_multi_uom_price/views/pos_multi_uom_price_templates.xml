@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+          <xpath expr="." position="inside">
+              <script type="text/javascript" src="/pos_multi_uom_price/static/src/js/multi_uom_price.js"></script>
+          </xpath>
+        </template>
+
+        <record id="multi_uom_form" model="ir.ui.view">
+	        <field name="name">multi.uom.form</field>
+	        <field name="model">product.multi.uom.price</field>
+	        <field name="arch" type="xml">
+	            <form string="Configuracion">
+	                <sheet>
+	                    <group>                     
+	                        <field name="product_id"></field>
+	                        <field name="category_id"></field>
+	                        <field name="uom_id"></field>	                        
+	                        <!--field name="moneda_divisa_venta" string="Moneda" attrs="{'invisible': [('habilita_precio_div', '!=',True)]}"></field-->
+	                        <field name="moneda_divisa_venta" string="Moneda"></field>
+	                        <!--field name="list_price2" string="Precio en divisas" attrs="{'invisible': [('habilita_precio_div', '!=',True)]}"></field-->
+	                        <field name="list_price2" string="Precio en divisas"></field>
+	                        <field name="price" string="Precio de venta"></field>
+	                        <field name="list_price_comp" invisible="1"></field>
+	                        <field name="habilita_precio_div" invisible="1"></field>
+	                    </group>
+	                </sheet>        
+	            </form>
+	        </field>
+    	</record>
+
+        <record id="multi_uom_tree" model="ir.ui.view">
+	        <field name="name">multi.uom.tree</field>
+	        <field name="model">product.multi.uom.price</field>
+	        <field name="arch" type="xml">
+	            <tree string="Configuracion 2">
+	            	<field name="product_id"></field>
+	                <field name="uom_id"></field> 
+	                <field name="price"></field>      
+	            </tree>
+	        </field>
+    	</record>
+
+        <record id="id_multi_uom" model="ir.actions.act_window">
+	        <field name="name">Configuracion s</field>
+	        <field name="res_model">product.multi.uom.price</field>
+	        <field name="view_mode">form,tree</field>
+	        <field name="view_id" ref="multi_uom_tree"></field>
+    	</record>
+
+    	<menuitem
+        id="menu_multi_uom"
+        name="xxxx" 
+        parent="stock.menu_stock_config_settings"
+        action="id_multi_uom"
+        sequence="1"/>
+
+</odoo>

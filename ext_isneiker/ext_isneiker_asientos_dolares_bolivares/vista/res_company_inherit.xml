@@ -1,0 +1,17 @@
+<odoo>
+  <data>
+
+     <record id="res_company_inerhit_conv" model="ir.ui.view">
+        <field name="name">res.company.inerhit.conv</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='currency_id']" position="after">  
+                <field name="currency_secundaria_id" string="Moneda para Transacciones de asientos contables"/>
+              
+            </xpath>
+        </field>
+    </record>     	 
+
+  </data>
+</odoo>
