@@ -13,7 +13,17 @@
     'category': 'Adaptacion contable de moneda local dolares a Bs ',
 
     # any module necessary for this one to work correctly
-    'depends': ['product','base', 'account','point_of_sale'],
+    'depends': ['product',
+    'base', 
+    'account',
+    'point_of_sale',
+    'libro_ventas',
+    'libro_compras',
+    'libros_filtros',
+    'vat_retention',
+    'municipality_tax',
+    'isrl_retention',
+    'l10n_ve_txt_iva',],
 
     # always loaded
     'data': [
@@ -21,6 +31,7 @@
         'vista/res_company_inherit.xml',
         'vista/pos_payment_inherit.xml',
         'vista/pos_order_inherit.xml',
+        'vista/compro_ret_inherit.xml',
         #'view_add.xml',
         #'vista_pos_paymet_inheret.xml',
         #'vista_pos_order_inherit.xml',

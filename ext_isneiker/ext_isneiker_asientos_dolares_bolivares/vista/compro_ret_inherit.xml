@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ************* COMPROBANTE DE RETENCIO IVA *******************************************-->
+    <template id="herencia_iva_retencion" inherit_id="vat_retention.template_vat_wh_voucher">
+        <xpath expr="//table[@name='detalle']" position="replace">
+
+        	<table width="100%;margin-top:30px;" name="detalle">
+                                    <tr>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Fecha Factura sssss
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            N° de Factura
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            N° Control
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            N° Nota de Débito
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            N° Nota de Crédito
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Tipo Trans
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            N° Factura Afectada
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Total Compras con IVA
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Compras Exentas
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Base Imponible
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            % Alicuota
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            Impuesto IVA
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            % Retención
+                                        </th>
+                                        <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
+                                            IVA Retenido
+                                        </th>
+                                    </tr>
+                                    <t t-set="por_iva" t-value="0" />
+                                    <tr  t-foreach="o.retention_line_ids" t-as="line">
+                                      <t t-if="line.tax_id.amount!=0">
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <span t-esc="line.formato_fecha()"/>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                          <strong t-if="line.invoice_id.type == 'in_invoice'">
+                                            <span t-esc="line.invoice_id.invoice_number"/>
+                                          </strong>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <span t-esc="line.invoice_id.invoice_ctrl_number"/>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                         <strong t-if="line.invoice_id.type == 'in_receipt'">
+                                            <span t-esc="line.invoice_id.invoice_number"/>
+                                         </strong>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                          <strong t-if="line.invoice_id.type == 'in_refund'">
+                                            <span t-esc="line.invoice_id.invoice_number"/>
+                                          </strong>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <strong t-if="line.invoice_id.type == 'in_invoice'">1</strong>
+                                            <strong t-if="line.invoice_id.type in ('in_refund','in_receipt')">2</strong>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <span t-esc="line.invoice_id.ref"/>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <!--CAMPO TOTAL COMPRAS CON IVA /-->
+                                            <span t-esc="line.float_format(abs(line.conv_moneda(line.invoice_id.amount_total_signed)))" />
+                                            <!--span t-esc="line.float_format(line.amount_untaxed+line.amount_vat_ret)" /-->
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <!-- campo Compras exentas-->
+                                            <!--span t-esc="line.float_format(line.amount_untaxed)"/-->
+                                            <span t-esc="line.valida_excento(line.tax_id.id,line.retention_id.id)"/>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <t t-if="line.tax_id.amount!=0"  >
+                                            <!--span t-esc="line.float_format(line.invoice_id.amount_untaxed)"/ OJO -->
+                                            <span t-esc="line.float_format(line.conv_moneda(line.amount_untaxed))"/>
+                                            </t>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <!-- <span t-esc="'%.2f'%(line.invoice_id.invoice_line_ids.tax_ids.amount)"/>% -->
+                                            <!--t t-set="por_iva" t-value="line.amount_vat_ret*100/line.amount_untaxed" /-->
+                                            <t t-set="por_iva" t-value="line.tax_id.amount" />
+                                            <t t-if="line.tax_id.amount!=0"  >
+                                            <span>
+											<p t-raw="line.float_format(por_iva)" ></p>
+                                            </span>
+                                            </t>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <t t-if="line.tax_id.amount!=0"  >
+                                            <span t-esc="line.float_format(line.conv_moneda(line.amount_vat_ret))"/>
+                                            </t>
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <t t-if="line.tax_id.amount!=0"  >
+                                            <span t-esc="line.float_format(line.retention_rate)"/>
+                                            </t>
+                                            
+                                        </td>
+                                        <td style="text-align:center;border:1px solid #000;">
+                                            <t t-if="line.tax_id.amount!=0"  >
+                                            <span t-esc="line.float_format(line.conv_moneda(line.retention_amount))"/>
+                                            </t>
+                                        </td>
+                                       </t>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="12" style="text-align:right;">
+                                            <b>Total Impuesto Retenido:</b>
+                                        </td>
+                                        <td style="text-align:right;" colspan='2'>
+                                            <b><span t-esc="o.float_format2(o.conv_moneda(o.vat_retentioned))"/></b>
+                                        </td>
+                                    </tr>
+            </table>
+                                 
+        </xpath>
+    </template>
+
+    <template id="herencia_municipal_retencion" inherit_id="municipality_tax.template_wh_municipality_tax">
+        <xpath expr="//table[@name='detalle']" position="replace">
+
+        	<table style="width:100%;border:1px solid #FFFFFF;" name="detalle">
+                                        <tr style="width:100%;border:1px solid #000;">
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Fecha de la factura</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Número de Factura</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Número de Control</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Actividad económica realizada</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Base Imponible</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Alícuota</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Impuesto Municipal Retenido</th>
+                                           <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Total Impuesto Municipal Retenido</th>
+                                        </tr>
+                                        <tbody>
+                                            <t t-set="acom_base" t-value="0" />
+                                            <t t-set="acom_retenido" t-value="0" />
+                                            <t t-foreach="o.act_code_ids" t-as="item">
+                                                <tr>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-field="item.invoice_id.invoice_date"/></td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;">
+                                                    <!--span t-field="item.invoice_date"/-->
+                                                    <span t-esc="item.invoice_number"/></td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="item.invoice_ctrl_number"/></td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="item.concept_id.name"/></td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="item.float_format(item.conv_moneda(item.base_tax))"/>
+                                                   <!-- darrell item.base_tax-->
+                                                    <t t-set="acom_base" t-value="acom_base+item.base_tax" />
+                                                    <!-- ojo -->
+                                                   </td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="'%.2f'%(item.aliquot)"/>%</td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="item.float_format(item.conv_moneda(item.wh_amount))"/>
+                                                   <t t-set="acom_retenido" t-value="acom_retenido+item.wh_amount" />
+                                                   <!-- ojo -->
+                                                   </td>
+                                                   <td style="text-align:center; font-size:10pt; border:1px solid #000;"><span t-esc="item.float_format(item.conv_moneda(item.wh_amount))"/></td>
+                                                </tr>
+                                                                                      
+                                            </t>
+                                            <tr>
+                                                   <td colspan="4" style="font-size:11pt; border:1px solid #000;width:50px;"><b>Totales</b></td>
+                                                   <td style="text-align:center; font-size:11pt; border:1px solid #000;">
+                                                    <p t-raw="o.float_format2(o.conv_moneda(acom_base))" ></p>
+                                                    <!--span t-esc="'%.2f'%(item.base_tax)"/--></td>
+                                                   <td style="text-align:center; font-size:11pt; border:1px solid #000;"></td>
+                                                   <td style="text-align:center; font-size:11pt; border:1px solid #000;">
+                                                    <p t-raw="o.float_format2(o.conv_moneda(acom_retenido))" ></p>
+                                                  <!--span t-esc="'%.2f'%(item.wh_amount)"/-->
+                                                    </td>
+                                                   <td style="text-align:center; font-size:11pt; border:1px solid #000;">
+                                                    <p t-raw="o.float_format2(o.conv_moneda(acom_retenido))" ></p>
+                                            
+                                                   </td>
+                                                </tr>
+                                        </tbody>
+                                    </table>
+
+        </xpath>
+    </template>
+
+    <template id="herencia_islr_retencion" inherit_id="isrl_retention.template_vat_isrl_voucher">
+        <xpath expr="//div[@name='detalle']" position="replace">
+            <div class="row" t-foreach="o.lines_id" t-as="line" name="detalle" >
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                        <span style="font-size:11px;" t-field="line.code"/>
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                       <span style="font-size:11px;" t-field="o.invoice_id.invoice_date"/>
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                         <span style="font-size:11px;" t-field="o.invoice_id.invoice_number"/>
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                        <span style="font-size:11px;" t-field="o.invoice_id.invoice_ctrl_number"/>
+                                    </div>
+                                    <div class="col-3 border border-dark p-2 text-center" >
+                                        <span style="font-size:11px;" t-field="line.name.name"/>
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                        <span style="font-size:11px;" t-esc="o.float_format(abs(line.conv_moneda(o.invoice_id.amount_total_signed)))" />
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-center" >
+                                        <span  style="font-size:11px;"  t-esc="o.float_format(line.conv_moneda(line.base))" />
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-right" >
+                                        <span  style="font-size:11px;" t-esc="o.float_format(line.conv_moneda(line.cantidad))"/> 
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-right" >
+                                        <span style="font-size:11px;"  t-esc="o.float_format(line.conv_moneda(line.sustraendo))" /> 
+                                    </div>
+                                    <div class="col-1 border border-dark p-2 text-right" >
+                                       <span  style="font-size:11px;"  t-esc="o.float_format(line.conv_moneda(line.total))"  /> 
+                                       <t t-set="total_ret" t-value="total_ret+line.total"/> 
+                                    </div>
+                                </div>
+        </xpath>
+
+        <xpath expr="//div[@name='total']" position="replace">
+        	<div class="col-1 text-right" name="total">
+                <span style="font-size:11px;"><t t-esc="o.float_format(o.conv_moneda(total_ret))"/></span>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
