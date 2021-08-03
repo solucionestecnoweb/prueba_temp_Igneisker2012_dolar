@@ -12,5 +12,5 @@ from odoo.exceptions import UserError, ValidationError
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    currency_secundaria_id=fields.Many2one("res.currency",digits=(12, 2))
+    currency_secundaria_id=fields.Many2one("res.currency",digits=(12, 2),default=3)
         
