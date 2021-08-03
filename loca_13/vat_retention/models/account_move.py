@@ -231,7 +231,7 @@ class AccountMove(models.Model):
                 'invoice_id': self.id,
                 'move_id': self.id,
                 'invoice_number': self.invoice_number,
-                'amount_untaxed': self.conv_div_nac(importe_base),
+                'amount_untaxed':self.conv_div_nac(importe_base),
                 'retention_amount':self.conv_div_nac(monto_retenido),
                 'amount_vat_ret':self.conv_div_nac(monto_iva),
                 'retention_rate':por_ret,

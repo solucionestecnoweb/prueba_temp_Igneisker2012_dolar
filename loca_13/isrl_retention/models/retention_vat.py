@@ -44,10 +44,8 @@ class RetentionVat(models.Model):
     
     type = fields.Selection(related='invoice_id.type',)
     
-    date_move = fields.Date(string='Date Move')
-    date_isrl= fields.Date(string='Date ISLR')
-    #date_move = fields.Date(string='Date Move',default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
-    #date_isrl= fields.Date(string='Date ISLR',default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
+    date_move = fields.Date(string='Date Move',default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
+    date_isrl= fields.Date(string='Date ISLR',default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
     partner_id = fields.Many2one(comodel_name='res.partner', string='Empresa')
     invoice_id = fields.Many2one(comodel_name='account.move', string='Factura')
     
@@ -55,6 +53,7 @@ class RetentionVat(models.Model):
     
     state = fields.Selection([('draft', 'Draft'), ('done', 'Done'),], string='State', readonly=True, default='draft')
     invoice_number=fields.Char(string='Nro de Factura')
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
     def _factura_prov_cli(self):
         self.invoice_number="...."
@@ -176,13 +175,8 @@ class RetentionVat(models.Model):
             name_retenido=self.invoice_id.company_id.partner_id.name
             #rate_valor=self.partner_id.vat_retention_rate
         if self.invoice_id.type=="in_invoice" or self.invoice_id.type=="in_refund" or self.invoice_id.type=="in_receipt":
-            if self.invoice_id.company_id.confg_ret_proveedores=="c":
-                id_journal=self.invoice_id.company_id.partner_id.sale_isrl_id.id
-                name_retenido=self.partner_id.name
-            if self.invoice_id.company_id.confg_ret_proveedores=="p":
-                id_journal=self.partner_id.sale_isrl_id.id
-                name_retenido=self.invoice_id.company_id.partner_id.name
-
+            id_journal=self.invoice_id.company_id.partner_id.sale_isrl_id.id
+            name_retenido=self.partner_id.name            
             #rate_valor=self.company_id.partner_id.vat_retention_rate
         #raise UserError(_('papa = %s')%signed_amount_total)
         value = {
@@ -217,16 +211,10 @@ class RetentionVat(models.Model):
             name_retenido=self.invoice_id.company_id.partner_id.name
             #rate_valor=self.partner_id.vat_retention_rate
         if self.type=="in_invoice" or self.type=="in_refund" or self.type=="in_receipt":
-            if self.invoice_id.company_id.confg_ret_proveedores=="c":
-                cuenta_ret_cliente=self.invoice_id.company_id.partner_id.account_isrl_receivable_id.id# cuenta retencion cliente
-                cuenta_ret_proveedor=self.invoice_id.company_id.partner_id.account_isrl_payable_id.id#cuenta retencion proveedores
-                cuenta_clien_cobrar=self.invoice_id.company_id.partner_id.property_account_receivable_id.id
-                cuenta_prove_pagar = self.invoice_id.company_id.partner_id.property_account_payable_id.id
-            if self.invoice_id.company_id.confg_ret_proveedores=="p":
-                cuenta_ret_cliente=self.partner_id.account_isrl_receivable_id.id# cuenta retencion cliente
-                cuenta_ret_proveedor=self.partner_id.account_isrl_payable_id.id#cuenta retencion proveedores
-                cuenta_clien_cobrar=self.partner_id.property_account_receivable_id.id
-                cuenta_prove_pagar = self.partner_id.property_account_payable_id.id
+            cuenta_ret_cliente=self.invoice_id.company_id.partner_id.account_isrl_receivable_id.id# cuenta retencion cliente
+            cuenta_ret_proveedor=self.invoice_id.company_id.partner_id.account_isrl_payable_id.id#cuenta retencion proveedores
+            cuenta_clien_cobrar=self.invoice_id.company_id.partner_id.property_account_receivable_id.id
+            cuenta_prove_pagar = self.invoice_id.company_id.partner_id.property_account_payable_id.id
             name_retenido=self.partner_id.name
             #rate_valor=self.company_id.partner_id.vat_retention_rate
 

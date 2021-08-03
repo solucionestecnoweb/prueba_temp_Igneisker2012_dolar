@@ -135,7 +135,7 @@
                             <br/>
                             <div class="row">
                             	<t t-if="o.type in ('in_invoice','in_refund','in_receipt')"  > 
-                                <table width="100%;margin-top:30px;">
+                                <table width="100%;margin-top:30px;" name="detalle">
                                     <tr>
                                         <th style="text-align:center;background-color:#FFFFFF;border:1px solid #000;">
                                             Fecha Factura

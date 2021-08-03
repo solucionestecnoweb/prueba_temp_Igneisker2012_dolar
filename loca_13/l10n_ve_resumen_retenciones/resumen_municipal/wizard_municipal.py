@@ -30,6 +30,7 @@ class ResumenMunicipalModelo(models.Model):
     porcentaje = fields.Float(string='Porcentaje')
     codigo = fields.Char(string='Código Actividad Económica')
     invoice_id = fields.Many2one('account.move')
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
 
     def float_format(self,valor):
@@ -102,7 +103,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
     date_to = fields.Date(string='Date To', default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
     date_actual = fields.Date(default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
 
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)
     line  = fields.Many2many(comodel_name='resumen.municipal.wizard.pdf', string='Lineas')
 
     def rif(self,aux):
@@ -192,7 +193,8 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
             ('transaction_date','>=',self.date_from),
             ('transaction_date','<=',self.date_to),
             ('state','=','posted'),
-            ('type','in',('in_invoice','in_refund','in_receipt'))
+            ('type','in',('in_invoice','in_refund','in_receipt')),
+            ('company_id','=',self.env.company.id),#loca14
             ])
         for det in cursor_resumen:
             if det.type=="in_refund":
@@ -207,11 +209,12 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
                 'invoice_number':det_line.invoice_number,
                 'invoice_ctrl_number':det_line.invoice_ctrl_number,
                 'factura_total':signo*self.conv_div_nac(det.invoice_id.amount_total,det),
-                'base_imponible':signo*det_line.base_tax,
-                'retenido':signo*det_line.wh_amount,
+                'base_imponible':signo*self.conv_div_nac(det_line.base_tax,det),
+                'retenido':signo*self.conv_div_nac(det_line.wh_amount,det),
                 'porcentaje':det_line.aliquot,
                 'codigo':det_line.code,
                 'invoice_id':det.invoice_id.id,
+                'company_id':det.company_id.id,#loca14
                 }
                 pdf_id = t.create(values)
         #   temp = self.env['account.wizard.pdf.ventas'].search([])

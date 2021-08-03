@@ -207,7 +207,7 @@
                                 }
                                 </style>
                                 <div class="col-12">
-                                    <table style="width:100%;border:1px solid #FFFFFF;">
+                                    <table style="width:100%;border:1px solid #FFFFFF;" name="detalle">
                                         <tr style="width:100%;border:1px solid #000;">
                                            <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Invoice Date</th>
                                            <th style="text-align:center; font-size:11pt; background-color:#FFFFFF;border:1px solid #000;">Invoice Number</th>

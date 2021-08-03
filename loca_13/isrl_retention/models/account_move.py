@@ -16,6 +16,7 @@ class AccountMove(models.Model):
     # Main Function
     def action_post(self):
         super().action_post()
+        #raise UserError(_('Hola'))
         bann=0
         bann=self.verifica_exento_islr()
         if bann>0:
@@ -67,52 +68,41 @@ class AccountMove(models.Model):
         #lista_mov.write({'vat_retentioned':7777})
 
     def create_retention(self):
-        active=False
         if self.type in ('in_invoice','out_invoice','in_refund','out_refund','in_receipt','out_receipt'):#darrell
             if self.isrl_ret_id.id:
                 pass
-            else:
-                if self.company_id.confg_ret_proveedores=="c":
-                    if self.company_id.partner_id.ret_agent_isrl:
-                        active=True
-                if self.company_id.confg_ret_proveedores=="p":
-                    if self.partner_id.ret_agent_isrl:
-                        active=True
+            else: 
+                if self.partner_id.people_type :
+                    self.isrl_ret_id = self.env['isrl.retention'].create({
+                        'invoice_id': self.id,
+                        'partner_id': self.partner_id.id,
+                        'move_id':self.id,
+                        'invoice_number':self.invoice_number,
+                    })
+                    for item in self.invoice_line_ids:
+                        if item.concept_isrl_id:
+                            for rate in item.concept_isrl_id.rate_ids:
+                                #raise UserError(_('item.price_subtotal=%s ')%rate.min)
+                                if self.partner_id.people_type == rate.people_type and  self.conv_div_nac(item.price_subtotal) > rate.min  :
+                                    base = item.price_subtotal * (rate.subtotal / 100)
+                                    subtotal =  base * (rate.retention_percentage / 100)
+                                    #raise UserError(_('base = %s')%base)
+                                    self.vat_isrl_line_id = self.env['isrl.retention.invoice.line'].create({
+                                        'name': item.concept_isrl_id.id,
+                                        'code':rate.code,
+                                        'retention_id': self.isrl_ret_id.id,
+                                        'cantidad': rate.retention_percentage,
+                                        'base': self.conv_div_nac(base),
+                                        'retention': self.conv_div_nac(subtotal),
+                                        'sustraendo': rate.subtract,
+                                        'total': self.conv_div_nac(subtotal - rate.subtract), # AQUI
+                                    })
+                else :
+                    raise UserError("the Partner does not have identified the type of person.")
 
-                if active==True:
-                    if self.partner_id.people_type :
-                        self.isrl_ret_id = self.env['isrl.retention'].create({
-                            'invoice_id': self.id,
-                            'partner_id': self.partner_id.id,
-                            'move_id':self.id,
-                            'invoice_number':self.invoice_number,
-                            'date_move':self.date,
-                            'date_isrl':self.date,
-                        })
-                        for item in self.invoice_line_ids:
-                            if item.concept_isrl_id:
-                                for rate in item.concept_isrl_id.rate_ids:
-                                    #raise UserError(_('item.price_subtotal=%s ')%rate.min)
-                                    if self.partner_id.people_type == rate.people_type and  self.conv_div_nac(item.price_subtotal) > rate.min  :
-                                        base = item.price_subtotal * (rate.subtotal / 100)
-                                        subtotal =  base * (rate.retention_percentage / 100)
-                                        #raise UserError(_('base = %s')%base)
-                                        self.vat_isrl_line_id = self.env['isrl.retention.invoice.line'].create({
-                                            'name': item.concept_isrl_id.id,
-                                            'code':rate.code,
-                                            'retention_id': self.isrl_ret_id.id,
-                                            'cantidad': rate.retention_percentage,
-                                            'base': self.conv_div_nac(base),
-                                            'retention': self.conv_div_nac(subtotal),
-                                            'sustraendo': rate.subtract,
-                                            'total': self.conv_div_nac(subtotal - rate.subtract), # AQUI
-                                        })
-                    else :
-                        raise UserError("the Partner does not have identified the type of person.")
-
-        if self.type =='in_invoice' or self.type =='in_refund' or self.type =='in_receipt':
-            if active==True:
-                self.isrl_ret_id.action_post()
+        if self.type =='in_invoice' or self.type =='in_refund' or self.type =='in_receipt':#darrell
+        #if self.type=='in_invoice':
+            self.isrl_ret_id.action_post()
 
 
     def conv_div_nac(self,valor):
@@ -136,7 +126,7 @@ class AccountMove(models.Model):
     def verifica_exento_islr(self):
         acum=0
         #raise UserError(_('self = %s')%self.id)
-        puntero_move_line = self.env['account.move.line'].search([('move_id','=',self.id),('account_internal_type','=','other')])
+        puntero_move_line = self.env['account.move.line'].search([('move_id','=',self.id),('account_internal_type','in',('other','liquidity'))])#loca14
         for det_puntero in puntero_move_line:
             if det_puntero.product_id.product_tmpl_id.concept_isrl_id.id:
                 acum=acum+1

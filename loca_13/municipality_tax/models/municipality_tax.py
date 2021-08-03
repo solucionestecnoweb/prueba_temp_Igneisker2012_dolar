@@ -310,7 +310,7 @@ class MUnicipalityTax(models.Model):
         monto_factura=self.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        if self.invoice_id.currency_id.id!=self.company_id.currency_id.id:
+        if self.invoice_id.currency_id.id!=self.env.company.currency_id.id:#loca14
             tasa= self.env['res.currency.rate'].search([('currency_id','=',self.invoice_id.currency_id.id),('name','<=',self.invoice_id.date)],order="name asc")
             for det_tasa in tasa:
                 if fecha_contable_doc>=det_tasa.name:
@@ -334,9 +334,9 @@ class MUnicipalityTax(models.Model):
         if self.type=="out_invoice" or self.type=="out_refund" or self.type=="out_receipt":
             id_journal=self.partner_id.purchase_jrl_id.id
         if self.type=="in_invoice" or self.type=="in_refund" or self.type=="in_receipt":
-            if self.company_id.confg_ret_proveedores=="c":
-                id_journal=self.company_id.partner_id.purchase_jrl_id.id
-            if self.company_id.confg_ret_proveedores=="p":
+            if self.env.company.confg_ret_proveedores=="c":#loca14
+                id_journal=self.env.company.partner_id.purchase_jrl_id.id#loca14
+            if self.env.company.confg_ret_proveedores=="p":#loca14
                 id_journal=self.partner_id.purchase_jrl_id.id
 
         value = {
@@ -350,6 +350,7 @@ class MUnicipalityTax(models.Model):
             #'amount_total_signed':signed_amount_total,# LISTO
             'type': "entry",# estte campo es el que te deja cambiar y almacenar valores
             'wh_muni_id': self.id,
+            'company_id':self.env.company.id,#loca14
         }
         move_obj = self.env['account.move']
         move_id = move_obj.create(value)    
@@ -367,12 +368,12 @@ class MUnicipalityTax(models.Model):
             cuenta_prove_pagar = self.partner_id.property_account_payable_id.id
 
         if self.type=="in_invoice" or self.type=="in_refund" or self.type=="in_receipt":
-            if self.company_id.confg_ret_proveedores=="c":
-                cuenta_ret_cliente=self.company_id.partner_id.account_ret_muni_receivable_id.id# cuenta retencion cliente
-                cuenta_ret_proveedor=self.company_id.partner_id.account_ret_muni_payable_id.id#cuenta retencion proveedores
-                cuenta_clien_cobrar=self.company_id.partner_id.property_account_receivable_id.id
-                cuenta_prove_pagar = self.company_id.partner_id.property_account_payable_id.id
-            if self.company_id.confg_ret_proveedores=="p":
+            if self.env.company.confg_ret_proveedores=="c":#loca14
+                cuenta_ret_cliente=self.env.company.partner_id.account_ret_muni_receivable_id.id#loca14 cuenta retencion cliente
+                cuenta_ret_proveedor=self.env.company.partner_id.account_ret_muni_payable_id.id#loca14cuenta retencion proveedores
+                cuenta_clien_cobrar=self.env.company.partner_id.property_account_receivable_id.id #loca14
+                cuenta_prove_pagar = self.env.company.partner_id.property_account_payable_id.id #loca14
+            if self.env.company.confg_ret_proveedores=="p": #loca14
                 cuenta_ret_cliente=self.partner_id.account_ret_muni_receivable_id.id# cuenta retencion cliente
                 cuenta_ret_proveedor=self.partner_id.account_ret_muni_payable_id.id#cuenta retencion proveedores
                 cuenta_clien_cobrar=self.partner_id.property_account_receivable_id.id
@@ -455,7 +456,7 @@ class MUnicipalityTax(models.Model):
                 'implementation': 'no_gap',
                 'padding': 8,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': self.env.company.id,#loca14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         return name

@@ -64,11 +64,9 @@ class WiizarXml(models.TransientModel):
                     fecha += str(item.date_isrl.month)+ '/'
                 fecha += str(item.date_isrl.year)
 
-                nro_fact=item.invoice_id.invoice_number.replace('-', '')
-                nro_fact=nro_fact.replace('000','00')
                 elemento_hijo_1 = ET.SubElement(elemento_1, 'DetalleRetencion')
                 elemento_hijo_2 = ET.SubElement(elemento_hijo_1, 'RifRetenido').text=str(doc)
-                elemento_hijo_3 = ET.SubElement(elemento_hijo_1, 'NumeroFactura').text=str(nro_fact)
+                elemento_hijo_3 = ET.SubElement(elemento_hijo_1, 'NumeroFactura').text=str(item.invoice_id.invoice_number)
                 elemento_hijo_4 = ET.SubElement(elemento_hijo_1, 'NumeroControl').text=str(item.invoice_id.invoice_ctrl_number.replace('-', ''))
                 elemento_hijo_5 = ET.SubElement(elemento_hijo_1, 'FechaOperacion').text=str(fecha)
                 elemento_hijo_6 = ET.SubElement(elemento_hijo_1, 'CodigoConcepto').text=str(line.code)

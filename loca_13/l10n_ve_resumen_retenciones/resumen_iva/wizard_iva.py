@@ -55,6 +55,7 @@ class LibroComprasModelo(models.Model):
     vat_ret_id = fields.Many2one('vat.retention', string='Nro de Comprobante IVA')
     invoice_id = fields.Many2one('account.move')
     tax_id = fields.Many2one('account.tax', string='Tipo de Impuesto')
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
 
     def float_format(self,valor):
@@ -127,7 +128,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
     date_to = fields.Date(string='Date To', default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
     date_actual = fields.Date(default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
 
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
     line  = fields.Many2many(comodel_name='resumen.iva.wizard.pdf', string='Lineas')
 
     def rif(self,aux):
@@ -218,7 +219,8 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             ('fecha_fact','<=',self.date_to),
             ('state_voucher_iva','=','posted'),
             ('state','in',('posted','cancel' )),
-            ('type','in',('in_invoice','in_refund','in_receipt'))
+            ('type','in',('in_invoice','in_refund','in_receipt')),
+            ('company_id','=',self.env.company.id)#loca14
             ])
         for det in cursor_resumen:
             values={
@@ -251,6 +253,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             'vat_ret_id':det.vat_ret_id.id,
             'invoice_id':det.invoice_id.id,
             'tax_id':det.tax_id.id,
+            'company_id':det.company_id.id,#loca14
             }
             pdf_id = t.create(values)
         #   temp = self.env['account.wizard.pdf.ventas'].search([])

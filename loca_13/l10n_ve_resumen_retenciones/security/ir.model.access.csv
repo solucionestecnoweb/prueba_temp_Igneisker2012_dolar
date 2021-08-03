@@ -17,3 +17,8 @@ access_resumen_islr_wizard_pdf,resumen.islr.wizard.pdf,model_resumen_islr_wizard
 access_resumen_islr_wizard_pdf,resumen.islr.wizard.pdf,model_resumen_islr_wizard_pdf,base.group_partner_manager,1,0,0,0
 access_resumen_islr_wizard_pdf,resumen.islr.wizard.pdf,model_resumen_islr_wizard_pdf,account.group_account_user,1,0,0,0
 access_resumen_islr_wizard_pdf,resumen.islr.wizard.pdf,model_resumen_islr_wizard_pdf,account.group_account_invoice,1,1,1,1
+wizard_resumen_iva,wizard.resumen.iva,model_wizard_resumen_iva,base.group_user,1,1,1,1
+wizard_resumen_municipal,wizard.resumen.municipal,model_wizard_resumen_municipal,base.group_user,1,1,1,1
+access_resumen_islr_wizard_type_people,resumen.islr.wizard.type.people,model_resumen_islr_wizard_type_people,base.group_user,1,1,1,1
+access_resumen_islr_wizard_code,resumen.islr.wizard.code,model_resumen_islr_wizard_code,base.group_user,1,1,1,1
+access_wizard_resumen_islr,wizard.resumen.islr,model_wizard_resumen_islr,base.group_user,1,1,1,1

@@ -79,6 +79,7 @@ class ResumenIslrModelo(models.Model):
     porcentaje=fields.Float(string='Porcentaje')
     total = fields.Float(string='Monto Total')
     id_code= fields.Many2one('resumen.islr.wizard.code')
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
 
     def float_format(self,valor):
@@ -151,7 +152,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
     date_to = fields.Date(string='Date To', default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
     date_actual = fields.Date(default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
 
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
     line_people  = fields.Many2many(comodel_name='resumen.islr.wizard.type.people', string='Lineas')
 
 
@@ -242,6 +243,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
             ('date_isrl','>=',self.date_from),
             ('date_isrl','<=',self.date_to),
             ('state','=','done'),
+            ('company_id','=',self.env.company.id),#loca14
             ])
         for det in cursor_resumen:
             #det2=det.lines_id.search([('code','=',id_code.code)])
@@ -257,6 +259,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
 	                'cant_retencion':det_line.base,
 	                'porcentaje':det_line.cantidad,
 	                'total':det_line.total,
+                    #'company_id':det_line.company_id.id,#loca14
 	                #'id_code':id_code.id,
 	                }
 	                pdf_id = t.create(values)
