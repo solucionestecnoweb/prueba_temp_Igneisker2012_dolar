@@ -197,7 +197,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        if selff.invoice_id.currency_id.id!=self.company_id.currency_id.id:
+        if selff.invoice_id.currency_id.id!=self.env.company.id.currency_id.id:#loca14 2
             tasa= self.env['account.move'].search([('id','=',selff.invoice_id.id)],order="id asc")
             for det_tasa in tasa:
                 monto_nativo=det_tasa.amount_untaxed_signed
@@ -220,7 +220,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             ('state_voucher_iva','=','posted'),
             ('state','in',('posted','cancel' )),
             ('type','in',('in_invoice','in_refund','in_receipt')),
-            #('company_id','=',self.env.company.id)#loca14
+            ('company_id','=',self.env.company.id)#loca14
             ])
         for det in cursor_resumen:
             values={
@@ -253,7 +253,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             'vat_ret_id':det.vat_ret_id.id,
             'invoice_id':det.invoice_id.id,
             'tax_id':det.tax_id.id,
-            #'company_id':det.company_id.id,#loca14
+            'company_id':self.env.company.id,#loca14
             }
             pdf_id = t.create(values)
         #   temp = self.env['account.wizard.pdf.ventas'].search([])
