@@ -253,7 +253,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             'vat_ret_id':det.vat_ret_id.id,
             'invoice_id':det.invoice_id.id,
             'tax_id':det.tax_id.id,
-            'company_id':det.company_id.id,#loca14
+            #'company_id':det.company_id.id,#loca14
             }
             pdf_id = t.create(values)
         #   temp = self.env['account.wizard.pdf.ventas'].search([])
