@@ -217,7 +217,7 @@
                                         <span style="font-size:11px;" t-field="line.name.name"/>
                                     </div>
                                     <div class="col-1 border border-dark p-2 text-center" >
-                                        <span style="font-size:11px;" t-esc="o.float_format(abs(o.invoice_id.amount_total_signed))" />
+                                        <span style="font-size:11px;" t-esc="o.float_format(abs(o.conv_moneda(o.invoice_id.amount_total_signed)))" />
                                         <!--span style="font-size:11px;" t-esc="o.float_format(abs(line.conv_moneda(o.invoice_id.amount_total_signed)))" /-->
                                     </div>
                                     <div class="col-1 border border-dark p-2 text-center" >
