@@ -159,6 +159,10 @@ class VatRetentionInvoiceLine(models.Model):
                 resultado=(det.rate*valor)
         return resultado
 
+    """def conv_moneda(self,valor):
+        resultado=valor
+        return resultado"""
+
 class RetentionVat(models.Model):
     """This is a main model for rentetion vat control."""
     _inherit = 'isrl.retention'
