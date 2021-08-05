@@ -220,7 +220,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
             ('state_voucher_iva','=','posted'),
             ('state','in',('posted','cancel' )),
             ('type','in',('in_invoice','in_refund','in_receipt')),
-            ('company_id','=',self.env.company.id)#loca14
+            #('company_id','=',self.env.company.id)#loca14
             ])
         for det in cursor_resumen:
             values={
