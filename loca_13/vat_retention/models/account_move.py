@@ -369,9 +369,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_factura_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_factura_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id #loca 14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) #loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -383,7 +383,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, #loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.invoice_number_cli=name
@@ -394,9 +394,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_control_factura_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_control_factura_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id #loca 14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) # loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -408,7 +408,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, #loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.invoice_number_cli=name
@@ -419,9 +419,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_factura_nota_credito_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_factura_nota_credito_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id # loca 14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) # loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -433,7 +433,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, # loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.refuld_number_cli=name
@@ -444,9 +444,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_control_nota_credito_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_control_nota_credito_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id #loca 14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) #loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -458,7 +458,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, #loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.refuld_number_cli=name
@@ -469,9 +469,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_factura_nota_debito_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_factura_nota_debito_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id #loca14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) #loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -483,7 +483,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, #loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.refuld_number_pro=name
@@ -494,9 +494,9 @@ class AccountMove(models.Model):
         nombre: 'l10n_ve_cuenta_retencion_iva'''
 
         self.ensure_one()
-        SEQUENCE_CODE = 'l10n_ve_nro_control_nota_debito_cliente'
-        company_id = 1
-        IrSequence = self.env['ir.sequence'].with_context(force_company=1)
+        SEQUENCE_CODE = 'l10n_ve_nro_control_nota_debito_cliente'+str(self.company_id.id) #loca 14
+        company_id = self.company_id.id #loca 14
+        IrSequence = self.env['ir.sequence'].with_context(force_company=company_id) #loca 14
         name = IrSequence.next_by_code(SEQUENCE_CODE)
 
         # si aún no existe una secuencia para esta empresa, cree una
@@ -508,7 +508,7 @@ class AccountMove(models.Model):
                 'implementation': 'no_gap',
                 'padding': 4,
                 'number_increment': 1,
-                'company_id': 1,
+                'company_id': company_id, # loca 14
             })
             name = IrSequence.next_by_code(SEQUENCE_CODE)
         #self.refuld_number_pro=name
