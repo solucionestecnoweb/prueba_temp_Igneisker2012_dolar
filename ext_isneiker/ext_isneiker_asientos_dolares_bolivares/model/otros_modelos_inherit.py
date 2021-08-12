@@ -263,7 +263,9 @@ class BsoftContratoReport2(models.TransientModel):
     def action_generate_txt(self):
         #raise UserError(_(' id retencion:'))
 
-        ret_cursor = self.env['account.move'].search([('date','>=',self.date_from),('date','<=',self.date_to),('type','in',('in_invoice','in_refund','in_receipt')),('state','=','posted'),],order="date asc")
+        ret_cursor = self.env['account.move'].search([('date','>=',self.date_from),('date','<=',self.date_to),('company_id','=',self.env.company.id),('type','in',('in_invoice','in_refund','in_receipt')),('state','=','posted'),],order="date asc")
+        if not ret_cursor:
+            raise UserError(_(' No hay registros de retenciones para esta compañia'))
         #_logger.info("\n\n\n {} \n\n\n".format(self.rec_cursor))
         #raise UserError(_(' id retencion:%s')%rec_cursor.vat_ret_id.id) 
 
@@ -271,7 +273,7 @@ class BsoftContratoReport2(models.TransientModel):
         retiva = self.env['vat.retention']
         retiva = str(retiva.name)
 
-        ruta="C:/Odoo 13.0e/server/odoo/LocalizacionV13/l10n_ve_txt_iva/wizard/txt_generacion.txt" #ruta local
+        ruta="C:/Odoo 13.0e/server/odoo/loca_13/l10n_ve_txt_iva/wizard/txt_generacion.txt" #ruta local
         #ruta="/mnt/extra-addons/l10n_ve_txt_iva/wizard/txt_generacion.txt"
         #ruta="/home/odoo/src/user/LocalizacionV13/l10n_ve_txt_iva/wizard/txt_generacion.txt"
         #ruta="/home/odoo/src/txt_generacion.txt" # ruta odoo sh
@@ -409,3 +411,84 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
         #rate=round(valor_aux,2)  # ODOO SH
         resultado=valor*rate
         return resultado
+
+#********************************  LIBRO DE VENTA POS  ************************************
+
+class PosSession(models.Model):
+    _inherit = 'pos.session'
+
+    def suma_alicuota_iguales_iva(self):
+        type_tax_use='sale'
+        lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use)])
+        base=0
+        total=0
+        total_impuesto=0
+        total_exento=0
+        alicuota_adicional=0
+        alicuota_reducida=0
+        alicuota_general=0
+        base_general=0
+        base_reducida=0
+        base_adicional=0
+        retenido_general=0
+        retenido_reducida=0
+        retenido_adicional=0
+        valor_iva=0
+        #raise UserError(_('lista_impuesto:%s')%lista_impuesto)
+        for det_tax in lista_impuesto:
+            tipo_alicuota=det_tax.aliquot
+            if self.config_id.ordenes_impr==True:
+                lin=self.env['pos.order.line'].search([('status_impresora','=','si')])
+            if self.config_id.ordenes_impr==False:
+                lin=self.env['pos.order.line'].search([])
+            if lin:
+                for det_lin in lin:
+                    if det_lin.order_id.session_id.id==self.id:
+                        fecha_orden=det_lin.order_id.date_order
+                        alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
+                        if det_lin.tax_ids_after_fiscal_position.aliquot==False:
+                            alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
+                        if tipo_alicuota==alicuota_product:
+                            base=base+det_lin.price_subtotal
+                            total=total+det_lin.price_subtotal_incl
+                            total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                            if alicuota_product=="general":
+                                alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                base_general=base_general+det_lin.price_subtotal
+                            if alicuota_product=="reduced":
+                                alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                base_reducida=base_reducida+det_lin.price_subtotal
+                            if alicuota_product=="additional":
+                                alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                base_adicional=base_adicional+det_lin.price_subtotal
+                            if alicuota_product=="exempt":
+                                total_exento=total_exento+det_lin.price_subtotal
+            #raise UserError(_('det_lin:%s')%det_lin)
+        values={
+            'total_con_iva':self.monto_div(total,fecha_orden),
+            'total_base':self.monto_div(base,fecha_orden),
+            'total_valor_iva':self.monto_div(total_impuesto,fecha_orden),
+            'alicuota_general':self.monto_div(alicuota_general,fecha_orden),
+            'base_general':self.monto_div(base_general,fecha_orden),
+            'total_exento':self.monto_div(total_exento,fecha_orden),
+            'alicuota_reducida':self.monto_div(alicuota_reducida,fecha_orden),
+            'alicuota_adicional':self.monto_div(alicuota_adicional,fecha_orden),
+            'base_adicional':self.monto_div(base_adicional,fecha_orden),
+            'base_reducida':self.monto_div(base_reducida,fecha_orden),
+            'session_id':self.id,
+            'fecha_fact':self.stop_at,
+            'reg_maquina':self.config_id.reg_maquina,
+            'nro_rep_z':self.get_nro_rep_z(),
+            'nro_doc':self.rango_nro_factura(),
+            'nro_doc_nc':self.rango_nro_nc()
+            }
+        self.env['pos.order.line.resumen'].create(values)
+
+    def monto_div(self,valor,fecha_orden):
+        self.env.company.currency_secundaria_id.id
+        for selff in self:
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',fecha_orden)],order='id ASC')
+            if lista_tasa:
+                for det in lista_tasa:
+                    valor=valor*det.rate
+        return valor
