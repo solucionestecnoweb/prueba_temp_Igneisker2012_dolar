@@ -13,6 +13,7 @@ class PosOrder(models.Model):
     _inherit = 'pos.order'
 
     amount_total_signed_aux_bs=fields.Float(compute="_compute_monto_conversion")
+    tasa_dia = fields.Float(compute="_compute_tasa")
 
     def _compute_monto_conversion(self):
         valor=0
@@ -23,3 +24,12 @@ class PosOrder(models.Model):
                 for det in lista_tasa:
                     valor=selff.amount_total*det.rate
             selff.amount_total_signed_aux_bs=valor
+
+    def _compute_tasa(self):
+        tasa=0
+        for selff in self:
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.date_order)],order='id ASC')
+            if lista_tasa:
+                for det in lista_tasa:
+                    tasa=det.rate
+            selff.tasa_dia=tasa
