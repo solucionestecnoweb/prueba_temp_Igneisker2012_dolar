@@ -273,10 +273,10 @@ class BsoftContratoReport2(models.TransientModel):
         retiva = self.env['vat.retention']
         retiva = str(retiva.name)
 
-        ruta="C:/Odoo 13.0e/server/odoo/loca_13/l10n_ve_txt_iva/wizard/txt_generacion.txt" #ruta local
+        #ruta="C:/Odoo 13.0e/server/odoo/loca_13/l10n_ve_txt_iva/wizard/txt_generacion.txt" #ruta local
         #ruta="/mnt/extra-addons/l10n_ve_txt_iva/wizard/txt_generacion.txt"
         #ruta="/home/odoo/src/user/LocalizacionV13/l10n_ve_txt_iva/wizard/txt_generacion.txt"
-        #ruta="/home/odoo/src/txt_generacion.txt" # ruta odoo sh
+        ruta="/home/odoo/src/txt_generacion.txt" # ruta odoo sh
         #raise UserError(_('mama = %s')%rec.type)
 
         with open(ruta, "w") as file:
