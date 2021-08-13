@@ -434,6 +434,7 @@ class PosSession(models.Model):
         retenido_reducida=0
         retenido_adicional=0
         valor_iva=0
+        conta_registro=0
         #raise UserError(_('lista_impuesto:%s')%lista_impuesto)
         for det_tax in lista_impuesto:
             tipo_alicuota=det_tax.aliquot
@@ -445,26 +446,30 @@ class PosSession(models.Model):
                 for det_lin in lin:
                     if det_lin.order_id.session_id.id==self.id:
                         fecha_orden=det_lin.order_id.date_order
-                        alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
-                        if det_lin.tax_ids_after_fiscal_position.aliquot==False:
-                            alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
-                        if tipo_alicuota==alicuota_product:
-                            base=base+det_lin.price_subtotal
-                            total=total+det_lin.price_subtotal_incl
-                            total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                            if alicuota_product=="general":
-                                alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_general=base_general+det_lin.price_subtotal
-                            if alicuota_product=="reduced":
-                                alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_reducida=base_reducida+det_lin.price_subtotal
-                            if alicuota_product=="additional":
-                                alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_adicional=base_adicional+det_lin.price_subtotal
-                            if alicuota_product=="exempt":
-                                total_exento=total_exento+det_lin.price_subtotal
-            #raise UserError(_('det_lin:%s')%det_lin)
-        values={
+                        if self.env.company.id==det_lin.order_id.company_id.id:
+                            conta_registro=conta_registro+1
+                            #raise UserError(_('det_lin:%s')%fecha_orden)
+                            alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
+                            if det_lin.tax_ids_after_fiscal_position.aliquot==False:
+                                alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
+                            if tipo_alicuota==alicuota_product:
+                                base=base+det_lin.price_subtotal
+                                total=total+det_lin.price_subtotal_incl
+                                total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                if alicuota_product=="general":
+                                    alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_general=base_general+det_lin.price_subtotal
+                                if alicuota_product=="reduced":
+                                    alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_reducida=base_reducida+det_lin.price_subtotal
+                                if alicuota_product=="additional":
+                                    alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_adicional=base_adicional+det_lin.price_subtotal
+                                if alicuota_product=="exempt":
+                                    total_exento=total_exento+det_lin.price_subtotal
+        #raise UserError(_('det_lin:%s')%lin)
+        if conta_registro>0:
+            values={
             'total_con_iva':self.monto_div(total,fecha_orden),
             'total_base':self.monto_div(base,fecha_orden),
             'total_valor_iva':self.monto_div(total_impuesto,fecha_orden),
@@ -482,13 +487,14 @@ class PosSession(models.Model):
             'nro_doc':self.rango_nro_factura(),
             'nro_doc_nc':self.rango_nro_nc()
             }
-        self.env['pos.order.line.resumen'].create(values)
+            self.env['pos.order.line.resumen'].create(values)
 
     def monto_div(self,valor,fecha_orden):
+        resultado=0
         self.env.company.currency_secundaria_id.id
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',fecha_orden)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',fecha_orden)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
-                    valor=valor*det.rate
-        return valor
+                    resultado=valor*det.rate
+        return resultado
