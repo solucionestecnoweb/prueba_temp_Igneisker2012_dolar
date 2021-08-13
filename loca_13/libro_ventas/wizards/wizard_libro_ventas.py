@@ -223,7 +223,6 @@ class libro_ventas(models.TransientModel):
         return resultado
         
     def get_invoice(self,accion):#loca14
-        raise UserError(_('cedula: %s')%self.env.company.id)
         t=self.env['account.wizard.pdf.ventas']
         d=t.search([])
         #d.unlink()
@@ -303,6 +302,7 @@ class libro_ventas(models.TransientModel):
 
     def print_facturas(self):
         #raise UserError(_('cedula: %s')%self.env.user.company_id.id)
+        raise UserError(_('cedula: %s')%self.env.company.id)
         self.actualiza_fecha_voucher()
         self.env['account.wizard.pdf.ventas'].search([]).unlink()
         action="voucher"
