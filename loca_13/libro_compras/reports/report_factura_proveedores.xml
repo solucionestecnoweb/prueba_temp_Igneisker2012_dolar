@@ -46,7 +46,7 @@
                             <td colspan="27"><h9>Razón Social: <t t-esc="o.company_id.name"/> </h9></td>
                           </tr>
                           <tr>
-                            <td colspan="27">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.id)">
+                            <td colspan="27">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.partner_id.id)"><!--loca14-->
                             </span></h9></td>
                           </tr>
                           <tr>
