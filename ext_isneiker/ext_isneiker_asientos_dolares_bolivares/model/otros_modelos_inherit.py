@@ -19,8 +19,8 @@ class libro_ventas(models.TransientModel):
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id)],order='id ASC')
-        raise UserError(_('lista_tasa: %s')%lista_tasa)
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
                 rate=(det.rate)
