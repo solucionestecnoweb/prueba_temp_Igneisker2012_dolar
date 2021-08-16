@@ -21,7 +21,7 @@ class PosConfig(models.Model):
     def _compute_link(self):
         valor_url='http://localhost/fiscal_13/nota_credito.php'
         for selff in self:
-            selff.link=valor_url+'?id_order_afectado='+str(selff.id_order_afectado)
+            selff.link=valor_url+'?id_order_afectado='+str(selff.id_order_afectado)+'&order_nc='+str(selff.id)
             selff.url_nota_credito=selff.link
 
 class PosMakePayment(models.TransientModel):

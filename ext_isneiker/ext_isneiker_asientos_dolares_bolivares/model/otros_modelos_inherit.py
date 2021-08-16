@@ -19,7 +19,7 @@ class libro_ventas(models.TransientModel):
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -38,7 +38,7 @@ class libro_ventas(models.TransientModel):
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -75,7 +75,7 @@ class VatRetentionInvoiceLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -115,7 +115,7 @@ class RetentionVat(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -127,7 +127,7 @@ class MunicipalityTaxLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -139,7 +139,7 @@ class MUnicipalityTax(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -153,7 +153,7 @@ class VatRetentionInvoiceLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.retention_id.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.retention_id.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -169,11 +169,100 @@ class RetentionVat(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
         return resultado
+
+    def conv_moneda_inv(self,valor):
+        resultado=0
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
+        if lista_tasa:
+            for det in lista_tasa:
+                resultado=(valor/det.rate)
+        return resultado
+
+    def registro_movimiento_linea_retencion(self,id_movv,consecutivo_asiento):
+        #raise UserError(_('ID MOVE = %s')%id_movv)
+        name = consecutivo_asiento
+        valores = self.total_ret() #self.conv_div_extranjera(self.total_ret()) #self.vat_retentioned #VALIDAR CONDICION
+        cero = 0.0
+        #raise UserError(_('valores = %s')%valores)
+        if self.invoice_id.type=="out_invoice" or self.invoice_id.type=="out_refund" or self.invoice_id.type=="out_receipt":
+            cuenta_ret_cliente=self.partner_id.account_isrl_receivable_id.id# cuenta retencion cliente
+            cuenta_ret_proveedor=self.partner_id.account_isrl_payable_id.id#cuenta retencion proveedores
+            cuenta_clien_cobrar=self.partner_id.property_account_receivable_id.id
+            cuenta_prove_pagar = self.partner_id.property_account_payable_id.id
+            name_retenido=self.invoice_id.company_id.partner_id.name
+            #rate_valor=self.partner_id.vat_retention_rate
+        if self.type=="in_invoice" or self.type=="in_refund" or self.type=="in_receipt":
+            cuenta_ret_cliente=self.invoice_id.company_id.partner_id.account_isrl_receivable_id.id# cuenta retencion cliente
+            cuenta_ret_proveedor=self.invoice_id.company_id.partner_id.account_isrl_payable_id.id#cuenta retencion proveedores
+            cuenta_clien_cobrar=self.invoice_id.company_id.partner_id.property_account_receivable_id.id
+            cuenta_prove_pagar = self.invoice_id.company_id.partner_id.property_account_payable_id.id
+            name_retenido=self.partner_id.name
+            #rate_valor=self.company_id.partner_id.vat_retention_rate
+
+        tipo_empresa=self.invoice_id.type
+        #raise UserError(_('papa = %s')%tipo_empresa)
+        if tipo_empresa=="in_invoice" or tipo_empresa=="in_receipt":#aqui si la empresa es un proveedor
+            cuenta_haber=cuenta_ret_proveedor
+            cuenta_debe=cuenta_prove_pagar            
+            balance_a=cero-valores
+            balance_b=valores-cero
+
+        if tipo_empresa=="in_refund":
+            cuenta_haber=cuenta_prove_pagar
+            cuenta_debe=cuenta_ret_proveedor
+            balance_a=cero-valores
+            balance_b=valores-cero
+
+        if tipo_empresa=="out_invoice" or tipo_empresa=="out_receipt":# aqui si la empresa es cliente
+            cuenta_haber=cuenta_clien_cobrar
+            cuenta_debe=cuenta_ret_cliente
+            balance_a=valores-cero
+            balance_b=cero-valores
+
+        if tipo_empresa=="out_refund":
+            cuenta_haber=cuenta_ret_cliente
+            cuenta_debe=cuenta_clien_cobrar
+            balance_a=valores-cero
+            balance_b=cero-valores
+        #balances=cero-valores
+        balances=balance_a
+        valores=self.conv_moneda_inv(valores)
+        value = {
+             'name': name,
+             'ref' : "Retención del %s %% ISLR de la Factura %s" % (name_retenido,self.move_id.name),
+             'move_id': int(id_movv),
+             'date': self.move_id.date,
+             'partner_id': self.partner_id.id,
+             'account_id': cuenta_haber,
+             #'amount_currency': 0.0,
+             #'date_maturity': False,
+             'credit': valores,
+             'debit': 0.0, # aqi va cero   EL DEBITO CUNDO TIENE VALOR, ES QUE EN ACCOUNT_MOVE TOMA UN VALOR
+             'balance':-valores, # signo negativo
+             'price_unit':balances,
+             'price_subtotal':balances,
+             'price_total':balances,
+
+        }
+        move_line_obj = self.env['account.move.line']
+        move_line_id1 = move_line_obj.create(value)
+
+        #balances=valores-cero
+        balances=balance_b
+        value['account_id'] = cuenta_debe
+        value['credit'] = 0.0 # aqui va cero
+        value['debit'] = valores
+        value['balance'] = valores
+        value['price_unit'] = balances
+        value['price_subtotal'] = balances
+        value['price_total'] = balances
+
+        move_line_id2 = move_line_obj.create(value)
 
 # ************************************  PARA EL REPORTE DE TXT DE IVA  ****************************************
 
@@ -182,7 +271,7 @@ class BsoftContratoReport2(models.TransientModel):
 
     def conv_moneda(self,valor,rec):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',rec.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',rec.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -383,7 +472,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -402,7 +491,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:

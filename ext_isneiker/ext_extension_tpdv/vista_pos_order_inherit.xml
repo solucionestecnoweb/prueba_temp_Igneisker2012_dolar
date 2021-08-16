@@ -7,8 +7,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">  
                       
-                <field name="nro_fact_seniat_aux" string="nro_fact_seniat_aux" invisible="0"/>
-                <field name="nro_fact_seniat" string="nro_fact_seniat" invisible="0"/>
+                <field name="nro_nc_seniat" string="Nro NC" invisible="0"/>
+                <field name="nro_fact_seniat" string="Nr Factura" invisible="0" readonly="1"/>
                 <field name="nb_caja_comp" string="Nombre Caja" invisible="1"/>
                 <field name="nb_caja" string="Nombre Caja" invisible="0" readonly="1"/>
               
@@ -24,9 +24,9 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">  
                       
-                <field name="nro_fact_seniat_aux" string="nro_fact_seniat_aux" invisible="1"/>
-                <field name="nro_fact_seniat" string="nro_fact_seniat" invisible="1"/>
-              
+                <field name="nro_fact_seniat" string="Nro Factura" invisible="0"/>
+                <field name="nro_nc_seniat" string="Nro NC" invisible="0"/>
+                
             </xpath>
             <xpath expr="//field[@name='user_id']" position="after">  
                       

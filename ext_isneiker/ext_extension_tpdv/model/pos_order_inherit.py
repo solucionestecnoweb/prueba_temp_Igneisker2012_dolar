@@ -21,6 +21,10 @@ class PosConfig(models.Model):
     	self.nb_caja_comp=self.session_id.config_id.nb_identificador_caja
     	self.nb_caja=self.nb_caja_comp
 
+    """def refund(self):
+    	super().refund()
+    	self.nro_fact_seniat=0"""
+
 class PosOrderLine(models.Model):
 	_inherit = 'pos.order.line'
 

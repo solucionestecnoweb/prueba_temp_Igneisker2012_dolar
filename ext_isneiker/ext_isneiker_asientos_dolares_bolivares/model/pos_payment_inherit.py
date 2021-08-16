@@ -18,7 +18,7 @@ class PosPayment(models.Model):
         valor=0
         self.env.company.currency_secundaria_id.id
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.payment_date)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.payment_date)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.amount*det.rate
