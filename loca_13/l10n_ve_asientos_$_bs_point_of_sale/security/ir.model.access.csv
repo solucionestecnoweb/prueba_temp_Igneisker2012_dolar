@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+stock_modelo,stock.modelo,model_stock_modelo,base.group_user,1,1,1,1
+stock_tipo,stock.tipo,model_stock_tipo,base.group_user,1,1,1,1
+stock_unidad_negocio,stock.unidad.negocio,model_stock_unidad_negocio,base.group_user,1,1,1,1

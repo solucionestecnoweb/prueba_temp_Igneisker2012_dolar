@@ -503,7 +503,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
 
 #********************************  LIBRO DE VENTA POS  ************************************
 
-class PosSession(models.Model):
+"""class PosSession(models.Model):
     _inherit = 'pos.session'
 
     def suma_alicuota_iguales_iva(self):
@@ -586,4 +586,4 @@ class PosSession(models.Model):
             if lista_tasa:
                 for det in lista_tasa:
                     resultado=valor*det.rate
-        return resultado
+        return resultado"""

@@ -42,7 +42,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-     "depends" : ['base','account','libro_resumen_alicuota','libros_filtros','libro_compras','ext_isneiker_asientos_dolares_bolivares'],
+     "depends" : ['base','account','libro_resumen_alicuota','libros_filtros','libro_compras','l10n_ve_asientos_$_bs_account'],
 
     # always loaded
     ##'data': ['views/wizard_libro_compras.xml','security/ir.model.access.csv','reports/report_factura_proveedores.xml'],  

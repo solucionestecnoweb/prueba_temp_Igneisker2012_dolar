@@ -1,0 +1,18 @@
+<odoo>
+  <data>
+
+     <record id="pos_order_inerhit_conv" model="ir.ui.view">
+        <field name="name">pos.order.inerhit.conv</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='amount_total']" position="after">  
+                                    
+                <field name="amount_total_signed_aux_bs" string="Total Bs" sum="amount_total_signed_aux_b"/>
+              
+            </xpath>
+        </field>
+    </record> 
+
+    </data>
+</odoo> 
