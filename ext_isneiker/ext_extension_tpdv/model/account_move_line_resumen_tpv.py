@@ -44,6 +44,11 @@ class ResumenAlicuotaTpv(models.Model):
     reg_maquina = fields.Char(string="Registro de Máquina Fiscal")
     nro_rep_z = fields.Char(string="Número Reporte Z")
 
+    base_imponible_nc = fields.Float(string="Base Imponible NC")
+    alicuota_nc =  fields.Float(string='Alicuota NC')
+    total_nc= fields.Float(string="Total NC",default=0)
+    fact_afectada = fields.Char()
+
 class PosSession(models.Model):
     _inherit = 'pos.session'
 
@@ -52,7 +57,8 @@ class PosSession(models.Model):
     def action_pos_session_closing_control(self):
         super().action_pos_session_closing_control()
         self.asigna_nro_fact()
-        self.suma_alicuota_iguales_iva()
+        nro_rep_z=self.suma_alicuota_iguales_iva()
+        self.suma_alicuota_iguales_iva_devolucion(nro_rep_z)
 
     def asigna_nro_fact(self):
         if self.config_id.ordenes_impr==True:
@@ -152,21 +158,23 @@ class PosSession(models.Model):
                         if det_lin.tax_ids_after_fiscal_position.aliquot==False:
                             alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
                         if tipo_alicuota==alicuota_product:
-                            base=base+det_lin.price_subtotal
-                            total=total+det_lin.price_subtotal_incl
-                            total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                            if alicuota_product=="general":
-                                alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_general=base_general+det_lin.price_subtotal
-                            if alicuota_product=="reduced":
-                                alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_reducida=base_reducida+det_lin.price_subtotal
-                            if alicuota_product=="additional":
-                                alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
-                                base_adicional=base_adicional+det_lin.price_subtotal
-                            if alicuota_product=="exempt":
-                                total_exento=total_exento+det_lin.price_subtotal
+                            if det_lin.tipo=="venta":
+                                base=base+det_lin.price_subtotal
+                                total=total+det_lin.price_subtotal_incl
+                                total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                if alicuota_product=="general":
+                                    alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_general=base_general+det_lin.price_subtotal
+                                if alicuota_product=="reduced":
+                                    alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_reducida=base_reducida+det_lin.price_subtotal
+                                if alicuota_product=="additional":
+                                    alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    base_adicional=base_adicional+det_lin.price_subtotal
+                                if alicuota_product=="exempt":
+                                    total_exento=total_exento+det_lin.price_subtotal
             #raise UserError(_('det_lin:%s')%det_lin)
+        nro_rep_z=self.get_nro_rep_z()
         values={
             'total_con_iva':total,
             'total_base':base,
@@ -181,11 +189,86 @@ class PosSession(models.Model):
             'session_id':self.id,
             'fecha_fact':self.stop_at,
             'reg_maquina':self.config_id.reg_maquina,
-            'nro_rep_z':self.get_nro_rep_z(),
+            'nro_rep_z':nro_rep_z,
             'nro_doc':self.rango_nro_factura(),
             'nro_doc_nc':self.rango_nro_nc()
             }
         self.env['pos.order.line.resumen'].create(values)
+        return nro_rep_z
+
+    def suma_alicuota_iguales_iva_devolucion(self,nro_rep_z):
+        un_order=self.env['pos.order'].search([('tipo','=','devolucion')])
+        #raise UserError(_('un_order:%s')%un_order)
+        if un_order:
+            for rec in un_order:
+                type_tax_use='sale'
+                lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use)])
+                base=0
+                total=0
+                total_impuesto=0
+                total_exento=0
+                alicuota_adicional=0
+                alicuota_reducida=0
+                alicuota_general=0
+                base_general=0
+                base_reducida=0
+                base_adicional=0
+                retenido_general=0
+                retenido_reducida=0
+                retenido_adicional=0
+                valor_iva=0
+                for det_tax in lista_impuesto:
+                    tipo_alicuota=det_tax.aliquot
+                    if self.config_id.ordenes_impr==True:
+                        lin=self.env['pos.order.line'].search([('order_id','=',rec.id),('status_impresora','=','si'),('tipo','=','devolucion')])
+                    if self.config_id.ordenes_impr==False:
+                        lin=self.env['pos.order.line'].search([('order_id','=',rec.id),('tipo','=','devolucion')])
+                    if lin:
+                        #raise UserError(_('lin:%s')%lin)
+                        for det_lin in lin:
+                            if det_lin.order_id.session_id.id==self.id:
+                                alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
+                                if det_lin.tax_ids_after_fiscal_position.aliquot==False:
+                                    alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
+                                if tipo_alicuota==alicuota_product:
+                                    base=base+det_lin.price_subtotal
+                                    total=total+det_lin.price_subtotal_incl
+                                    total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                    if alicuota_product=="general":
+                                        alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                        base_general=base_general+det_lin.price_subtotal
+                                    if alicuota_product=="reduced":
+                                        alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                        base_reducida=base_reducida+det_lin.price_subtotal
+                                    if alicuota_product=="additional":
+                                        alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
+                                        base_adicional=base_adicional+det_lin.price_subtotal
+                                    if alicuota_product=="exempt":
+                                        total_exento=total_exento+det_lin.price_subtotal
+
+                values={
+                
+                'session_id':self.id,
+                'fecha_fact':self.stop_at,
+                'reg_maquina':self.config_id.reg_maquina,
+                'nro_rep_z':nro_rep_z,
+                #'nro_doc':self.rango_nro_factura(),
+                'nro_doc_nc':rec.nro_nc_seniat,
+                'base_imponible_nc':base,
+                'alicuota_nc':(total-base),
+                'total_nc':total,
+                'fact_afectada':self.fact_afectada(rec.id_order_afectado),
+                }
+                self.env['pos.order.line.resumen'].create(values)
+
+
+    def fact_afectada(self,id_afectado):
+        valor=0
+        busca=self.env['pos.order'].search([('id','=',id_afectado)])
+        if busca:
+            for det in busca:
+                valor=det.nro_fact_seniat
+        return valor
 
     def rango_nro_factura(self):
         valor_ini=valor_fin=0

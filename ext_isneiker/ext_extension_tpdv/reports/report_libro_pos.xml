@@ -39,29 +39,29 @@
 
                         <table class="table table-condensed ">
                           <tr>
-                            <td colspan="31">
+                            <td colspan="36">
                               <h1>Libro de Ventas Pos</h1>
                             </td>
                           </tr>
                           <tr>
-                            <td colspan="32"><h9>Razón Social: <t t-esc="o.company_id.name"/> </h9></td>
+                            <td colspan="37"><h9>Razón Social: <t t-esc="o.company_id.name"/> </h9></td>
                           </tr>
                           <tr>
-                            <td colspan="32">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.partner_id.id)">
+                            <td colspan="37">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.partner_id.id)">
                             </span></h9></td>
                           </tr>
                           <tr>
-                            <td colspan="32"><h9>Dirección Fiscal:
+                            <td colspan="37"><h9>Dirección Fiscal:
                               <span t-field="o.company_id.street"> </span> <t t-esc="o.company_id.city" /> <t t-esc="o.company_id.state_id.name"/> <t t-esc="o.company_id.zip" /> <t t-esc="o.company_id.country_id.name" /></h9>
                             </td>
                           </tr>
                           <tr>
-                            <td colspan="32"><h9>Periodo:
+                            <td colspan="37"><h9>Periodo:
                               <span t-field="o.date_from"></span> &amp;nbsp;Hasta:<span t-field="o.date_to"></span></h9>
                             </td>
                           </tr>
                           <tr>
-                            <td colspan="15"> </td>
+                            <td colspan="20"> </td>
                             <td colspan="14">
                               <div align="center">
                               VENTAS INTERNAS
@@ -72,7 +72,7 @@
 
                           <tbody class="table table-bordered">
                           <tr>
-                            <td colspan="15"> </td>
+                            <td colspan="20"> </td>
                             <td colspan="7" style="background-color:#CCCCCC">
                                 <div align="center">
                                   CONTRIBUYENTES
@@ -104,7 +104,13 @@
                             de debito</td>
                             <td width="250">Número <br/>
                                nota de Crédito
-                          </td>
+                            </td>
+                            <td>Base Imponible</td>
+                            <td>Alicuota</td>
+                            <td>Impuesto IVA</td>
+                            <td>Total </td>
+                            <td>Nro Fact <br/>Afectada</td>
+
                             <!--td>Nro. Documento Afectado
                           </td-->
                             <td>Tipo de <br/>Transacc.</td>
@@ -175,6 +181,10 @@
                           <t t-set="total_debitos" t-value="0"/>
                           <t t-set="total_retenidos" t-value="0"/>
 
+                          <t t-set="total_base_imponible_nc" t-value="0"/>
+                          <t t-set="total_alicuota_nc" t-value="0"/>
+                          <t t-set="total_total_nc" t-value="0"/>
+
                           <!-- FIN VARIABLES DE ENTORNOS -->
 
                           <tbody class="table table-bordered">
@@ -201,8 +211,31 @@
                                 <td align="center"><t t-esc="line.nro_rep_z"/></td>
                                 <td> </td>
                                 <td><t t-esc="line.nro_doc_nc"/></td>
+                                <!-- nevo -->
+                                <td><t t-esc="line.float_format(line.base_imponible_nc)"/>
+                                  <t t-set="total_base_imponible_nc" t-value="total_base_imponible_nc+line.base_imponible_nc"/>
+                                </td>
+                                <td>16%</td>
+                                <td>
+                                  <t t-esc="line.float_format(line.alicuota_nc)"/>
+                                  <t t-set="total_alicuota_nc" t-value="total_alicuota_nc+line.alicuota_nc"/>
+                                </td>
+                                <td><t t-esc="line.float_format(line.total_nc)"/>
+                                  <t t-set="total_total_nc" t-value="total_total_nc+line.total_nc"/>
+                                </td>
+                                <td align="center">
+                                  <t t-esc="line.fact_afectada"/>
+                                </td>
+                                <!-- fin nuevo -->
                                 <!--td>x</td-->
-                                <td>01 Registro</td>
+                                <td>
+                                  <t t-if="line.total_nc==0">
+                                    01-Registro
+                                  </t>
+                                  <t t-if="line.total_nc!=0">
+                                    03-NC
+                                  </t>
+                                </td>
                                 <td>
                                   <div align="right">
                                     <t t-esc="line.float_format(line.sale_total)"/>
@@ -217,7 +250,7 @@
                                 </div>
                                 </td>
                                 <!-- CAMPOS DE  CONTRIBUYENTES -->
-                                <td><div align="right">0,00</div></td>
+                                <td><div align="right">69,00</div></td>
                                 <td> </td>
                                 <td><div align="right">0,00</div></td>
                                 <td> </td>
@@ -227,6 +260,7 @@
                                 <!-- CAMPOS DE NO CONTRIBUYENTES -->
                                 <td>
                                   <div align="right">
+                                    <!--t t-if="line.total_nc!=0"-->
                                   <t t-esc="line.float_format(line.base_reducida)"/>
                                   <t t-set="acum_b_reducida" t-value="acum_b_reducida+(line.base_reducida)"/>
                                   </div>
@@ -283,8 +317,14 @@
                           </tbody>
                           <!-- darrell FILA DE TOTALES -->
                           <tr>
-                            <td colspan="10"> </td>
+                            <td colspan="9"> </td>
                             <td><div align="right">TOTALES:</div></td>
+                            <td><div align="right"><t t-esc="o.float_format2(total_base_imponible_nc)"/></div></td>
+                            <td> </td>
+                            <td><div align="right"><t t-esc="o.float_format2(total_alicuota_nc)"/></div></td>
+                            <td><div align="right"><t t-esc="o.float_format2(total_total_nc)"/></div></td>
+                            <td></td>
+                            <td></td>
                             <td><div align="right"><t t-esc="o.float_format2(acum_venta_iva)"/></div></td>
 
                             <td>
@@ -417,6 +457,11 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
 
                             <td colspan="3" style="background-color:#D3D3D3">
                               <div align="center">
@@ -464,6 +509,11 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
 
                             <td colspan="4">
                               Ventas internas Exentas o Exoneradas
@@ -504,6 +554,11 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
 
                             <td colspan="4">
                               Ventas Internas Afectadas sólo Alícuota General
@@ -511,15 +566,15 @@
 
                             <td colspan="2">
                               <div align="right">
-                              <t t-esc="o.float_format2(acum_base_general)"/>
-                              <t t-set="total_bases" t-value="total_bases+acum_base_general"/>
+                              <t t-esc="o.float_format2(acum_base_general+total_base_imponible_nc)"/>
+                              <t t-set="total_bases" t-value="total_bases+acum_base_general+total_base_imponible_nc"/>
                               </div>
                             </td><!-- 20, 21-->
 
                             <td colspan="2">
                               <div align="right">
-                              <t t-esc="o.float_format2(acum_general)"/>
-                              <t t-set="total_debitos" t-value="total_debitos+(acum_general)"/>
+                              <t t-esc="o.float_format2(acum_general+total_alicuota_nc)"/>
+                              <t t-set="total_debitos" t-value="total_debitos+(acum_general+total_alicuota_nc)"/>
                               </div>
                             </td><!-- 22 y 23-->
 
@@ -551,6 +606,11 @@
                             <td></td><!-- 13-->
                             <td></td><!-- 14-->
                             <td></td><!-- 15-->
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -602,6 +662,11 @@
                             <td></td><!-- 13-->
                             <td></td><!-- 14-->
                             <td></td><!-- 15-->
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -659,6 +724,11 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
 
                             <td colspan="4">
                               Ventas de Exportación
@@ -704,6 +774,11 @@
                             <td></td><!-- 13-->
                             <td></td><!-- 14-->
                             <td></td><!-- 15-->
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>

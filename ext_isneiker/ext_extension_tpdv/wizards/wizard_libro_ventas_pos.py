@@ -53,6 +53,11 @@ class LibroVentasPosModelo(models.Model):
     nro_rep_z = fields.Char(string="Número Reporte Z")
     nro_doc = fields.Char(string="Nro de documentos")
     nro_doc_nc = fields.Char(string="Nro de nota credito")
+    base_imponible_nc = fields.Float(string="Base Imponible NC")
+    alicuota_nc =  fields.Float(string='Alicuota NC')
+    total_nc= fields.Float(string="Total NC",default=0)
+    fact_afectada = fields.Char()
+
 
     def formato_fecha2(self,date):
         fecha = str(date)
@@ -216,6 +221,10 @@ class libro_ventas(models.TransientModel):
             'nro_rep_z':det.nro_rep_z,
             'nro_doc':det.nro_doc,
             'nro_doc_nc':det.nro_doc_nc,
+            'base_imponible_nc':det.base_imponible_nc,
+            'alicuota_nc':det.alicuota_nc,
+            'total_nc':det.total_nc,
+            'fact_afectada':det.fact_afectada,
             }
             pdf_id = t.create(values)
         self.line = self.env['pos.wizard.pdf.ventas'].search([])

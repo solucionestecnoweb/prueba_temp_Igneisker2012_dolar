@@ -35,5 +35,6 @@ class PosMakePayment(models.TransientModel):
         for det in actualiza:
             id_order_org=det.id
         ordenes.id_order_afectado=id_order_org
+        ordenes.tipo="devolucion"
 
         #raise UserError(_('pos_reference= %s')%ordenes.pos_reference)
