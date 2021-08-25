@@ -16,6 +16,17 @@ class PosConfig(models.Model):
     nb_caja=fields.Char(string="Registro de nombre de la caja")
     status_impresora = fields.Char(default="no")
     tipo = fields.Char(default="venta")
+    tasa_dia = fields.Float(compute="_compute_tasa")
+
+
+    def _compute_tasa(self):
+        tasa=0
+        for selff in self:
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date_order)],order='id ASC')
+            if lista_tasa:
+                for det in lista_tasa:
+                    tasa=det.rate
+            selff.tasa_dia=tasa
 
 
     def _compute_nb_caja(self):

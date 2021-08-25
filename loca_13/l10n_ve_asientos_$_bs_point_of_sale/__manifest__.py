@@ -19,6 +19,7 @@
     'libro_ventas',
     'libro_compras',
     'l10n_ve_asientos_$_bs_account',
+    'ext_extension_tpdv',
     ],
 
     # always loaded

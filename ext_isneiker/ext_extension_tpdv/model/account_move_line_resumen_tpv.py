@@ -60,6 +60,10 @@ class PosSession(models.Model):
         nro_rep_z=self.suma_alicuota_iguales_iva()
         self.suma_alicuota_iguales_iva_devolucion(nro_rep_z)
 
+    def conv_div_bs(self,valor):
+        return valor
+
+
     def asigna_nro_fact(self):
         if self.config_id.ordenes_impr==True:
             lista_pos_order = self.env['pos.order'].search([('session_id','=',self.id),('status_impresora','=','si')],order="id asc")
@@ -176,16 +180,16 @@ class PosSession(models.Model):
             #raise UserError(_('det_lin:%s')%det_lin)
         nro_rep_z=self.get_nro_rep_z()
         values={
-            'total_con_iva':total,
-            'total_base':base,
-            'total_valor_iva':total_impuesto,
-            'alicuota_general':alicuota_general,
-            'base_general':base_general,
-            'total_exento':total_exento,
-            'alicuota_reducida':alicuota_reducida,
-            'alicuota_adicional':alicuota_adicional,
-            'base_adicional':base_adicional,
-            'base_reducida':base_reducida,
+            'total_con_iva':self.conv_div_bs(total),
+            'total_base':self.conv_div_bs(base),
+            'total_valor_iva':self.conv_div_bs(total_impuesto),
+            'alicuota_general':self.conv_div_bs(alicuota_general),
+            'base_general':self.conv_div_bs(base_general),
+            'total_exento':self.conv_div_bs(total_exento),
+            'alicuota_reducida':self.conv_div_bs(alicuota_reducida),
+            'alicuota_adicional':self.conv_div_bs(alicuota_adicional),
+            'base_adicional':self.conv_div_bs(base_adicional),
+            'base_reducida':self.conv_div_bs(base_reducida),
             'session_id':self.id,
             'fecha_fact':self.stop_at,
             'reg_maquina':self.config_id.reg_maquina,
@@ -254,9 +258,9 @@ class PosSession(models.Model):
                 'nro_rep_z':nro_rep_z,
                 #'nro_doc':self.rango_nro_factura(),
                 'nro_doc_nc':rec.nro_nc_seniat,
-                'base_imponible_nc':base,
-                'alicuota_nc':(total-base),
-                'total_nc':total,
+                'base_imponible_nc':self.conv_div_bs(base),
+                'alicuota_nc':self.conv_div_bs(total-base),
+                'total_nc':self.conv_div_bs(total),
                 'fact_afectada':self.fact_afectada(rec.id_order_afectado),
                 }
                 self.env['pos.order.line.resumen'].create(values)

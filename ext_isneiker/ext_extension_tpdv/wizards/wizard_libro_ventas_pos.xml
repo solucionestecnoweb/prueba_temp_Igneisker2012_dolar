@@ -20,7 +20,7 @@
                         </group>
                     </div>
                     <footer states="choose">
-                        <!--button name="generate_xls_report" string="Exportar Excel" type="object" class="oe_highlight" /-->
+                        <button name="generate_xls_report" string="Exportar Excel" type="object" class="oe_highlight" />
                         <button name="print_libro_pos" string="Exportar PDF" type="object" class="oe_highlight" />
                         <button special="cancel" string="Cancel" class="oe_highlight" />
                     </footer>
