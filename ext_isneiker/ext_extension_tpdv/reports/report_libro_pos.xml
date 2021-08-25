@@ -206,7 +206,7 @@
                                 <td>RESUMEN</td>
                                 <td>Resumen Diario de Ventas</td>
                                 <td>.</td>
-                                <td><t t-esc="line.nro_doc"/></td><!-- aqui me quede--><!-- Desde 69518 Hasta 69518 -->
+                                <td><t t-esc="line.nro_doc"/></td><!-- Desde 69518 Hasta 69518 -->
                                 <td aling="center"><t t-esc="line.reg_maquina"/></td>
                                 <td align="center"><t t-esc="line.nro_rep_z"/></td>
                                 <td> </td>
@@ -250,7 +250,7 @@
                                 </div>
                                 </td>
                                 <!-- CAMPOS DE  CONTRIBUYENTES -->
-                                <td><div align="right">69,00</div></td>
+                                <td><div align="right">0,00</div></td>
                                 <td> </td>
                                 <td><div align="right">0,00</div></td>
                                 <td> </td>

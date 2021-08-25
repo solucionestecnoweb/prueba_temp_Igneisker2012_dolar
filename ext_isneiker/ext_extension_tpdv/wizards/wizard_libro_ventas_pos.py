@@ -496,13 +496,56 @@ class libro_ventas(models.TransientModel):
         total_alicuota_nc=0
         total_total_nc=0
 
-        for invoice in self.line.sorted(key=lambda x: (x.name ),reverse=False):
+        for line in self.line.sorted(key=lambda x: (x.name ),reverse=False):
             row += 1
             ws1.write(row,col+0,str(numero),center)
-            ws1.write(row,col+1,str(invoice.formato_fecha2(invoice.fecha_fact)),center)
+            ws1.write(row,col+1,str(line.formato_fecha2(line.fecha_fact)),center)
             ws1.write(row,col+2,'RESUMEN',center)
             ws1.write(row,col+4,'RESUMEN DIIARIO DE VENTAS',center)
-            ws1.write(row,col+5,str(invoice.nro_doc),center)
+            ws1.write(row,col+5,str(line.nro_doc),center)
+            ws1.write(row,col+6,str(line.reg_maquina),center)
+            ws1.write(row,col+7,str(line.nro_rep_z),center)
+            ws1.write(row,col+9,str(line.nro_doc_nc),center)
+            ws1.write(row,col+10,str(round(line.base_imponible_nc,2)),center)
+            total_base_imponible_nc=total_base_imponible_nc+line.base_imponible_nc
+            ws1.write(row,col+11,'16%',center)
+            ws1.write(row,col+12,str(round(line.alicuota_nc,2)),center)
+            total_alicuota_nc=total_alicuota_nc+line.alicuota_nc
+            ws1.write(row,col+13,str(round(line.total_nc,2)),center)
+            total_total_nc=total_total_nc+line.total_nc
+            ws1.write(row,col+14,str(line.fact_afectada),center)
+            if line.total_nc==0:
+                ws1.write(row,col+15,'01-Registro',center)
+            if line.total_nc!=0:
+                ws1.write(row,col+15,'03-NC',center)
+            ws1.write(row,col+16,str(round(line.sale_total,2)),center)
+            acum_venta_iva=acum_venta_iva+line.sale_total
+            ws1.write(row,col+18,str(round(line.total_exento,2)),center)
+            acum_exento=acum_exento+line.total_exento
+            # campos de contribuyentes
+            ws1.write(row,col+19,'0.0',center)
+            ws1.write(row,col+21,'0.0',center)
+            ws1.write(row,col+23,'0.0',center)
+            ws1.write(row,col+25,'0.0',center)
+            # CAMPOS NO CONTRIBUYENTES
+            ws1.write(row,col+26,str(round(line.base_reducida,2)),center)
+            acum_b_reducida=acum_b_reducida+(line.base_reducida)
+            if line.base_reducida!=0:
+                ws1.write(row,col+27,'8%',center)
+            ws1.write(row,col+28,str(round(line.alicuota_reducida,2)),center)
+            acum_reducida=acum_reducida+line.alicuota_reducida
+            if line.base_general!=0:
+                ws1.write(row,col+29,'16%',center)
+            ws1.write(row,col+30,str(round(line.base_general+line.base_adicional,2)),center)
+            acum_b_general=acum_b_general+(line.base_general+line.base_adicional)
+            if line.base_adicional!=0:
+                ws1.write(row,col+31,'31%',center)
+            ws1.write(row,col+32,str(round(line.alicuota_general+line.alicuota_adicional,2)),center)
+            acum_iva=acum_iva+(line.alicuota_general+line.alicuota_adicional)
+            ws1.write(row,col+33,str(round(line.iva_retenido,2)),center)
+            acum_iva_ret=acum_iva_ret+line.iva_retenido
+            ws1.write(row,col+35,'---',center)
+
 
             numero=numero+1
 
