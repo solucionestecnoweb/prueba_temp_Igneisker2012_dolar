@@ -458,7 +458,7 @@ class libro_ventas(models.TransientModel):
         acum_exento=0
         acum_fob=0
 
-        #### varuables de contribiyentes
+        #### variables de contribiyentes
         acum_b_reducida=0
         acum_reducida=0
         acum_b_general=0                         
@@ -497,6 +497,12 @@ class libro_ventas(models.TransientModel):
         total_total_nc=0
 
         for line in self.line.sorted(key=lambda x: (x.name ),reverse=False):
+            contador=contador+1
+            acum_base_general=acum_base_general+line.base_general
+            acum_general=acum_general+line.alicuota_general
+            acum_base_adicional=acum_base_adicional+line.base_adicional
+            acum_base_reducida=acum_base_reducida+line.base_reducida
+            acum_adicional=acum_adicional+line.alicuota_adicional
             row += 1
             ws1.write(row,col+0,str(numero),center)
             ws1.write(row,col+1,str(line.formato_fecha2(line.fecha_fact)),center)
@@ -548,12 +554,98 @@ class libro_ventas(models.TransientModel):
 
 
             numero=numero+1
+        # ******* FILA DE TOTALES **********
+        row=row+1
+        ws1.write(row,col+9," TOTALES",sub_header_style)
+        ws1.write(row,col+10,str(round(total_base_imponible_nc,2)),right)
+        ws1.write(row,col+12,str(round(total_alicuota_nc,2)),right)
+        ws1.write(row,col+13,str(round(total_total_nc,2)),center)
+        ws1.col(col+13).width = int(len(str(total_total_nc))*256)
+        ws1.write(row,col+16,str(round(acum_venta_iva,2)),center)
+        ws1.write(row,col+17,str(round(acum_fob,2)),center)
+        ws1.write(row,col+18,str(round(acum_exento,2)),center)
+        ws1.write(row,col+19,str(round(acum_b_reducida2,2)),center)
+        ws1.write(row,col+20,'---',center)
+        ws1.write(row,col+21,str(round(acum_reducida2,2)),center)
+        ws1.write(row,col+22,'---',center)
+        ws1.write(row,col+23,str(round(acum_b_general2,2)),center)
+        ws1.write(row,col+24,'---',center)
+        ws1.write(row,col+25,str(round(acum_iva2,2)),center)
+        ws1.write(row,col+26,str(round(acum_b_reducida,2)),center)
+        ws1.write(row,col+27,'---',center)
+        ws1.write(row,col+28,str(round(acum_reducida,2)),center)
+        ws1.write(row,col+29,'---',center)
+        ws1.write(row,col+30,str(round(acum_b_general,2)),center)
+        ws1.write(row,col+31,'---',center)
+        ws1.write(row,col+32,str(round(acum_iva,2)),center)
+        ws1.write(row,col+33,str(round(acum_iva_ret,2)),center)
+
+        # ******* RESUMEN DE VENTAS **********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"RESUMEN DE VENTAS",sub_header_style_c)
+        ws1.write_merge(row, row, 23, 24,"Base Imponible",sub_header_style_c)
+        ws1.write_merge(row, row, 25, 26,"Débito Fiscal",sub_header_style_c)
+        ws1.write_merge(row, row, 27, 29,"Iva Retenidos por Ventas",sub_header_style_c)
+
+        # ************* fila exentas o exoneradas *********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"Ventas internas Exentas o Exoneradas",right)
+        ws1.write_merge(row, row, 23, 24,acum_exento,right)
+        total_bases=total_bases+acum_exento
+        ws1.write_merge(row, row, 25, 26,"0.00",right)
+        ws1.write_merge(row, row, 27, 29,"0.00",right)
+
+        # ************* fila SOLO ALICUOTA GENERAL *********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"Ventas Internas Afectadas sólo Alícuota General",right)
+        ws1.write_merge(row, row, 23, 24,round(acum_base_general+total_base_imponible_nc,2),right)
+        total_bases=total_bases+acum_base_general+total_base_imponible_nc
+        ws1.write_merge(row, row, 25, 26,round(acum_general+total_alicuota_nc,2),right)
+        total_debitos=total_debitos+(acum_general+total_alicuota_nc)
+        ws1.write_merge(row, row, 27, 29,round(acum_ret_general,2),right)
+        total_retenidos=total_retenidos+acum_ret_general
+
+        # ************* fila ALICUOTA GENERAL MAS ADICIONAL *********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"Ventas Internas Afectadas sólo AlícuotaGeneral + Adicional",right)
+        ws1.write_merge(row, row, 23, 24,acum_base_adicional,right)
+        total_bases=total_bases+acum_base_adicional
+        ws1.write_merge(row, row, 25, 26,acum_adicional,right)
+        total_debitos=total_debitos+acum_adicional
+        ws1.write_merge(row, row, 27, 29,acum_ret_adicional,right)
+        total_retenidos=total_retenidos+acum_ret_adicional
+
+        # ************* fila REDUCIDA *********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"Ventas Internas Afectadas sólo Alícuota Reducida",right)
+        ws1.write_merge(row, row, 23, 24,acum_base_reducida,right)
+        total_bases=total_bases+acum_base_reducida
+        ws1.write_merge(row, row, 25, 26,acum_reducida+acum_reducida2,right)
+        total_debitos=total_debitos+(acum_reducida+acum_reducida2)
+        ws1.write_merge(row, row, 27, 29,acum_ret_reducida,right)
+        total_retenidos=total_retenidos+acum_ret_reducida
+
+        # ************* fila EXPORTACION *********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"Ventas de Exportación",right)
+        ws1.write_merge(row, row, 23, 24,acum_fob,right)
+        total_bases=total_bases+acum_fob
+        ws1.write_merge(row, row, 25, 26,"0.00",right)
+        ws1.write_merge(row, row, 27, 29,"0.00",right)
+
+        # ************* fila totales*********
+        row=row+1
+        ws1.write_merge(row, row, 20, 22,"TOTAL:",right)
+        ws1.write_merge(row, row, 23, 24,total_bases,right)
+        ws1.write_merge(row, row, 25, 26,total_debitos,right)
+        ws1.write_merge(row, row, 27, 29,total_retenidos,right)
+
 
 
         wb1.save(fp)
         out = base64.encodestring(fp.getvalue())
         fecha  = datetime.now().strftime('%d/%m/%Y') 
-        self.write({'state': 'get', 'report': out, 'name':'TPDV pos'+ fecha+'.xls'})
+        self.write({'state': 'get', 'report': out, 'name':'TPDV pos_'+fecha+'.xls'})
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'pos.wizard.libro.ventas',
