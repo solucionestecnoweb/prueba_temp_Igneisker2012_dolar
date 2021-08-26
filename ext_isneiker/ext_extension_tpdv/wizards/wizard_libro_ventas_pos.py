@@ -22,7 +22,7 @@ class LibroVentasPosModelo(models.Model):
 
     name = fields.Date(string='Fecha')
     document = fields.Char(string='Rif')
-    partner  = fields.Many2one(comodel_name='res.partner', string='Partner')
+    #partner  = fields.Many2one(comodel_name='res.partner', string='Partner')
     tipo_doc = fields.Char(string='tipo_doc')
     sale_total = fields.Float(string='invoice_ctrl_number')
     base_imponible = fields.Float(string='invoice_ctrl_number')
@@ -57,6 +57,7 @@ class LibroVentasPosModelo(models.Model):
     alicuota_nc =  fields.Float(string='Alicuota NC')
     total_nc= fields.Float(string="Total NC",default=0)
     fact_afectada = fields.Char()
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company.id)
 
 
     def formato_fecha2(self,date):
@@ -180,7 +181,7 @@ class libro_ventas(models.TransientModel):
     state = fields.Selection([('choose', 'choose'), ('get', 'get')],default='choose') ##Genera los botones de exportar xls y pdf como tambien el de cancelar
     report = fields.Binary('Prepared file', filters='.xls', readonly=True)
     name = fields.Char('File Name', size=32)
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)
 
     line  = fields.Many2many(comodel_name='pos.wizard.pdf.ventas', string='Lineas')
 
@@ -197,8 +198,10 @@ class libro_ventas(models.TransientModel):
         d.unlink()
         cursor_resumen = self.env['pos.order.line.resumen'].search([
             ('fecha_fact','>=',self.date_from),
-            ('fecha_fact','<=',self.date_to)
+            ('fecha_fact','<=',self.date_to),
+            ('company_id','=',self.env.company.id)
             ])
+        #raise UserError(_('name:%s')%cursor_resumen)
         for det in cursor_resumen:
             values={
             'name':det.fecha_fact,
