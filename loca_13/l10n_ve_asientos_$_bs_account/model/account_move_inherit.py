@@ -14,6 +14,8 @@ class AccountMove(models.Model):
 
     amount_total_signed_bs=fields.Float()
     amount_total_signed_aux_bs=fields.Float(compute="_compute_monto_conversion")
+    amount_untaxed_signed_bs=fields.Float(compute="_compute_monto_conversion_untaxed")
+    amount_residual_signed_bs=fields.Float(compute="_compute_monto_conversion_residual")
 
     def _compute_monto_conversion(self):
         valor=0
@@ -25,6 +27,26 @@ class AccountMove(models.Model):
                     valor=selff.amount_total_signed*det.rate
             selff.amount_total_signed_aux_bs=valor
             selff.amount_total_signed_bs=valor
+
+    def _compute_monto_conversion_untaxed(self):
+        valor=0
+        self.env.company.currency_secundaria_id.id
+        for selff in self:
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date)],order='id ASC')
+            if lista_tasa:
+                for det in lista_tasa:
+                    valor=selff.amount_untaxed_signed*det.rate
+            selff.amount_untaxed_signed_bs=valor
+
+    def _compute_monto_conversion_residual(self):
+        valor=0
+        self.env.company.currency_secundaria_id.id
+        for selff in self:
+            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date)],order='id ASC')
+            if lista_tasa:
+                for det in lista_tasa:
+                    valor=selff.amount_residual_signed*det.rate
+            selff.amount_residual_signed_bs=valor
 
 #******************* RUTINA PARA LAS RETENCIONES ISLR ***************
     def create_retention(self):

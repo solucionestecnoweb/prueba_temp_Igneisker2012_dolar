@@ -1,0 +1,31 @@
+<odoo>
+  <data>
+
+     <record id="stock_valuation_layer_inerhit_conv" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.conv</field>
+        <field name="model">stock.valuation.layer</field>
+        <field name="inherit_id" ref="stock_account.stock_valuation_layer_tree"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='value']" position="after">  
+                                    
+                <field name="amount_total_signed_aux_bs" string="Valor Bs" sum="amount_total_signed_aux_b"/>
+              
+            </xpath>
+        </field>
+    </record> 
+
+    <record id="stock_valuation_layer_inerhit_conv_from" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.conv.from</field>
+        <field name="model">stock.valuation.layer</field>
+        <field name="inherit_id" ref="stock_account.stock_valuation_layer_form"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='value']" position="after">  
+                                    
+                <field name="amount_total_signed_aux_bs" string="Valor Total Bs"/>
+              
+            </xpath>
+        </field>
+    </record>
+
+    </data>
+</odoo> 

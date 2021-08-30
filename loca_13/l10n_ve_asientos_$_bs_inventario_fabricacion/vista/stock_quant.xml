@@ -1,0 +1,18 @@
+<odoo>
+  <data>
+
+     <record id="stock_quant_inerhit_conv" model="ir.ui.view">
+        <field name="name">stock.quant.conv</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+        <field name="arch" type="xml">
+           <xpath expr="//field[@name='value']" position="after">  
+                                    
+                <field name="amount_total_signed_aux_bs" string="Valor Bs" sum="amount_total_signed_aux_b"/>
+              
+            </xpath>
+        </field>
+    </record> 
+
+    </data>
+</odoo> 
