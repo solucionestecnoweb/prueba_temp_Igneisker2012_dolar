@@ -56,7 +56,7 @@ class PosSession(models.Model):
 
     def action_pos_session_closing_control(self):
         super().action_pos_session_closing_control()
-        self.asigna_nro_fact()
+        #self.asigna_nro_fact() # FUNCION QUE SIMULA LA ASIGNACION DEL NRO DE FACTURA Y NC SIN LA IMPRESORA
         nro_rep_z=self.suma_alicuota_iguales_iva()
         self.suma_alicuota_iguales_iva_devolucion(nro_rep_z)
 
