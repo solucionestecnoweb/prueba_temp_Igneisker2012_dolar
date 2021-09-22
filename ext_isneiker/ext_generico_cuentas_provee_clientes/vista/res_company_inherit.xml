@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="cuentas_prove_clie" model="ir.ui.view">
+        <field name="name">cuentas.prove.clie</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+                <page string="Config. Cuentas Clientes/Proveedores" name="studio_page_J8fdN">
+                  <group name="studio_group_J8fdN">
+                    <group name="studio_group_J8fdN_left" string="Cuentas Contables">
+                        <field name="account_payable_aux_id" string="Cuenta por Pagar" invisible='0'/>
+                        <field name="account_receivable_aux_id" string="Cuenta por Cobrar" invisible='0'/>
+                    </group>
+                    <group name="studio_group_J8fdN_right" string="Cuentas de Anticipo">
+                        <field name="account_anti_payable_aux_id" string="Cuenta Anticipo Preveedor" invisible='0'/>
+                        <field name="account_anti_receivable_aux_id" string="Cuenta Anticipo Cliente" invisible='0'/>
+                    </group>
+                  </group>
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>

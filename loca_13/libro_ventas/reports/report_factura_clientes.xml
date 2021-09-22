@@ -30,7 +30,7 @@
           <!--paperformat="libro_ventas.paperformat_libro_ventas"-->
 
 
-          <template id="reporte_factura_clientes" name="libro_ventas_x">
+          <template id="reporte_factura_clientes" name="">
              <t t-call="web.html_container">
 
                   <t t-call="web.basic_layout">
@@ -47,7 +47,7 @@
                             <td colspan="31"><h9>Razón Social: <t t-esc="o.company_id.name"/> </h9></td>
                           </tr>
                           <tr>
-                            <td colspan="31">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.partner_id.id)"><!--loca14-->
+                            <td colspan="31">Rif: <h9><span t-esc="o.doc_cedula2(o.company_id.id)">
                             </span></h9></td>
                           </tr>
                           <tr>

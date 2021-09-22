@@ -56,7 +56,6 @@ class LibroVentasModelo(models.Model):
     vat_ret_id = fields.Many2one('vat.retention', string='Nro de Comprobante IVA')
     invoice_id = fields.Many2one('account.move')
     tax_id = fields.Many2one('account.tax', string='Tipo de Impuesto')
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
     def formato_fecha2(self,date):
         fecha = str(date)
@@ -184,7 +183,7 @@ class libro_ventas(models.TransientModel):
     state = fields.Selection([('choose', 'choose'), ('get', 'get')],default='choose') ##Genera los botones de exportar xls y pdf como tambien el de cancelar
     report = fields.Binary('Prepared file', filters='.xls', readonly=True)
     name = fields.Char('File Name', size=32)
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)#loca14
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)
 
     line  = fields.Many2many(comodel_name='account.wizard.pdf.compras', string='Lineas')
     
@@ -285,8 +284,7 @@ class libro_ventas(models.TransientModel):
             ('fecha_fact','>=',self.date_from),
             ('fecha_fact','<=',self.date_to),
             ('state','in',('posted','cancel' )),
-            ('type','in',('in_invoice','in_refund','in_receipt')),
-            ('company_id','=',self.env.company.id)#loca14
+            ('type','in',('in_invoice','in_refund','in_receipt'))
             ])
         for det in cursor_resumen:
             values={
@@ -319,7 +317,6 @@ class libro_ventas(models.TransientModel):
             'vat_ret_id':det.vat_ret_id.id,
             'invoice_id':det.invoice_id.id,
             'tax_id':det.tax_id.id,
-            'company_id':det.company_id.id,#loca14
             }
             pdf_id = t.create(values)
         #   temp = self.env['account.wizard.pdf.ventas'].search([])

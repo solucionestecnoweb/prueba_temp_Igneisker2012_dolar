@@ -42,7 +42,6 @@ class ResumenAlicuota(models.Model):
     tipo_doc = fields.Char()
     fecha_fact= fields.Date()
     fecha_comprobante= fields.Date()
-    company_id = fields.Many2one('res.company', string='Company',default=lambda self: self.env.company.id)#loca14
 
 
     def _nro_comp(self):
@@ -171,7 +170,6 @@ class AccountMove(models.Model):
                 'retenido_general':retenido_general,
                 'retenido_reducida':retenido_reducida,
                 'retenido_adicional':retenido_adicional,
-                'company_id':det_m.company_id.id,#loca14
                 }
                 det_m.env['account.move.line.resumen'].create(values)
 
@@ -289,7 +287,6 @@ class AccountMove(models.Model):
             'retenido_general':retenido_general,
             'retenido_reducida':retenido_reducida,
             'retenido_adicional':retenido_adicional,
-            'company_id':self.company_id.id,#loca14
             }
             self.env['account.move.line.resumen'].create(values)
 

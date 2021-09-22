@@ -55,7 +55,6 @@ class LibroVentasModelo(models.Model):
 
     vat_ret_id = fields.Many2one('vat.retention', string='Nro de Comprobante IVA')
     invoice_id = fields.Many2one('account.move')
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
 
     def formato_fecha2(self,date):
         fecha = str(date)
@@ -132,7 +131,7 @@ class libro_ventas(models.TransientModel):
     state = fields.Selection([('choose', 'choose'), ('get', 'get')],default='choose') ##Genera los botones de exportar xls y pdf como tambien el de cancelar
     report = fields.Binary('Prepared file', filters='.xls', readonly=True)
     name = fields.Char('File Name', size=32)
-    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.company.id)#loca14
+    company_id = fields.Many2one('res.company','Company',default=lambda self: self.env.user.company_id.id)
 
     line  = fields.Many2many(comodel_name='account.wizard.pdf.ventas', string='Lineas')
 
@@ -193,7 +192,6 @@ class libro_ventas(models.TransientModel):
     def doc_cedula2(self,aux):
         #nro_doc=self.partner_id.vat
         busca_partner = self.env['res.partner'].search([('id','=',aux)])
-        #raise UserError(_('xxx: %s')%busca_partner)
         for det in busca_partner:
             tipo_doc=busca_partner.doc_type
             nro_doc=str(busca_partner.vat)
@@ -222,7 +220,7 @@ class libro_ventas(models.TransientModel):
         resultado=str(tipo_doc)+str(nro_doc)
         return resultado
         
-    def get_invoice(self,accion):#loca14
+    def get_invoice(self,accion):
         t=self.env['account.wizard.pdf.ventas']
         d=t.search([])
         #d.unlink()
@@ -231,8 +229,7 @@ class libro_ventas(models.TransientModel):
                 ('fecha_fact','>=',self.date_from),
                 ('fecha_fact','<=',self.date_to),
                 ('state','in',('posted','cancel' )),
-                ('type','in',('out_invoice','out_refund','out_receipt')),
-                ('company_id','=',self.env.company.id)#loca14
+                ('type','in',('out_invoice','out_refund','out_receipt'))
                 ])
         if accion=="voucher":
             cursor_resumen = self.env['account.move.line.resumen'].search([
@@ -241,10 +238,8 @@ class libro_ventas(models.TransientModel):
                 ('fecha_fact','<',self.date_from),
                 #('fecha_fact','>=',self.date_to),
                 ('state_voucher_iva','=','posted'),
-                ('type','in',('out_invoice','out_refund','out_receipt')),
-                ('company_id','=',self.env.company.id)#loca14
+                ('type','in',('out_invoice','out_refund','out_receipt'))
                 ])
-        #raise UserError(_('cursor_resumen: %s')%cursor_resumen)
         for det in cursor_resumen:
             alicuota_reducida=0
             alicuota_general=0
@@ -294,9 +289,9 @@ class libro_ventas(models.TransientModel):
             'retenido_general':self.conv_div_nac(det.retenido_general,det),
             'vat_ret_id':det.vat_ret_id.id,
             'invoice_id':det.invoice_id.id,
-            'company_id':det.company_id.id,#loca14
             }
             pdf_id = t.create(values)
+        #   temp = self.env['account.wizard.pdf.ventas'].search([])
         self.line = self.env['account.wizard.pdf.ventas'].search([])
 
 
@@ -304,9 +299,9 @@ class libro_ventas(models.TransientModel):
         self.actualiza_fecha_voucher()
         self.env['account.wizard.pdf.ventas'].search([]).unlink()
         action="voucher"
-        self.get_invoice(action)#loca14
+        self.get_invoice(action)
         action="factura"
-        self.get_invoice(action)#loca14
+        self.get_invoice(action)
         return {'type': 'ir.actions.report','report_name': 'libro_ventas.reporte_factura_clientes','report_type':"qweb-pdf"}
 
 
