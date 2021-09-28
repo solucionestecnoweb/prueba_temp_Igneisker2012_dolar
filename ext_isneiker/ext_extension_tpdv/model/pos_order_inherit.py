@@ -22,7 +22,8 @@ class PosConfig(models.Model):
     def _compute_tasa(self):
         tasa=0
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date_order)],order='id ASC')
+            #lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date_order)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rate'].search([('hora','<=',selff.date_order)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     tasa=det.rate

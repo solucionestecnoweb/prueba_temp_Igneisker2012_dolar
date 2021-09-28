@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import Warning
 
 
 
@@ -14,7 +15,7 @@ class ResumenAlicuotaTpv(models.Model):
 
 
     session_id=fields.Many2one('pos.session', ondelete='cascade')
-    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company.id)
     state=fields.Char()
     total_con_iva = fields.Float(string=' Total con IVA')
     total_base = fields.Float(string='Total Base Imponible')
@@ -56,12 +57,15 @@ class PosSession(models.Model):
 
     def action_pos_session_closing_control(self):
         super().action_pos_session_closing_control()
-        #self.asigna_nro_fact() # FUNCION QUE SIMULA LA ASIGNACION DEL NRO DE FACTURA Y NC SIN LA IMPRESORA
+        #self.asigna_nro_fact()
         nro_rep_z=self.suma_alicuota_iguales_iva()
         self.suma_alicuota_iguales_iva_devolucion(nro_rep_z)
 
     def conv_div_bs(self,valor):
         return valor
+
+    def mensaje(self):
+        return {'warning': {'message':'Ejecutado con exito'}}
 
 
     def asigna_nro_fact(self):
@@ -133,7 +137,7 @@ class PosSession(models.Model):
 
     def suma_alicuota_iguales_iva(self):
         type_tax_use='sale'
-        lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use)])
+        lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use),('company_id','=',self.env.company.id)])
         base=0
         total=0
         total_impuesto=0
@@ -148,6 +152,7 @@ class PosSession(models.Model):
         retenido_reducida=0
         retenido_adicional=0
         valor_iva=0
+        hay_registro="no"
         #raise UserError(_('lista_impuesto:%s')%lista_impuesto)
         for det_tax in lista_impuesto:
             tipo_alicuota=det_tax.aliquot
@@ -157,7 +162,7 @@ class PosSession(models.Model):
                 lin=self.env['pos.order.line'].search([])
             if lin:
                 for det_lin in lin:
-                    if det_lin.order_id.session_id.id==self.id:
+                    if det_lin.order_id.session_id.id==self.id and det_lin.order_id.session_id.order_count>0:
                         alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
                         if det_lin.tax_ids_after_fiscal_position.aliquot==False:
                             alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
@@ -167,19 +172,25 @@ class PosSession(models.Model):
                                 total=total+det_lin.price_subtotal_incl
                                 total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                 if alicuota_product=="general":
+                                    hay_registro="si"
                                     alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                     base_general=base_general+det_lin.price_subtotal
                                 if alicuota_product=="reduced":
+                                    hay_registro="si"
                                     alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                     base_reducida=base_reducida+det_lin.price_subtotal
                                 if alicuota_product=="additional":
+                                    hay_registro="si"
                                     alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                     base_adicional=base_adicional+det_lin.price_subtotal
                                 if alicuota_product=="exempt":
+                                    hay_registro="si"
                                     total_exento=total_exento+det_lin.price_subtotal
             #raise UserError(_('det_lin:%s')%det_lin)
-        nro_rep_z=self.get_nro_rep_z()
-        values={
+        nro_rep_z=0
+        if hay_registro=="si":
+            nro_rep_z=self.get_nro_rep_z()
+            values={
             'total_con_iva':self.conv_div_bs(total),
             'total_base':self.conv_div_bs(base),
             'total_valor_iva':self.conv_div_bs(total_impuesto),
@@ -197,16 +208,16 @@ class PosSession(models.Model):
             'nro_doc':self.rango_nro_factura(),
             'nro_doc_nc':self.rango_nro_nc()
             }
-        self.env['pos.order.line.resumen'].create(values)
+            self.env['pos.order.line.resumen'].create(values)
         return nro_rep_z
 
     def suma_alicuota_iguales_iva_devolucion(self,nro_rep_z):
-        un_order=self.env['pos.order'].search([('tipo','=','devolucion')])
+        un_order=self.env['pos.order'].search([('tipo','=','devolucion'),('company_id','=',self.env.company.id),('session_id','=',self.id)])
         #raise UserError(_('un_order:%s')%un_order)
         if un_order:
             for rec in un_order:
                 type_tax_use='sale'
-                lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use)])
+                lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use),('company_id','=',self.env.company.id)])
                 base=0
                 total=0
                 total_impuesto=0
@@ -221,6 +232,7 @@ class PosSession(models.Model):
                 retenido_reducida=0
                 retenido_adicional=0
                 valor_iva=0
+                hay_registro="no"
                 for det_tax in lista_impuesto:
                     tipo_alicuota=det_tax.aliquot
                     if self.config_id.ordenes_impr==True:
@@ -230,7 +242,7 @@ class PosSession(models.Model):
                     if lin:
                         #raise UserError(_('lin:%s')%lin)
                         for det_lin in lin:
-                            if det_lin.order_id.session_id.id==self.id:
+                            if det_lin.order_id.session_id.id==self.id and det_lin.order_id.session_id.order_count>0:
                                 alicuota_product=det_lin.tax_ids_after_fiscal_position.aliquot
                                 if det_lin.tax_ids_after_fiscal_position.aliquot==False:
                                     alicuota_product="exempt" # AQUI SIRVE SI AL PRODUCTO NO LE INDICARON EL TIPO DE ALICUOTA, ASUME QUE ES EXENTO
@@ -239,31 +251,34 @@ class PosSession(models.Model):
                                     total=total+det_lin.price_subtotal_incl
                                     total_impuesto=total_impuesto+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                     if alicuota_product=="general":
+                                        hay_registro="si"
                                         alicuota_general=alicuota_general+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                         base_general=base_general+det_lin.price_subtotal
                                     if alicuota_product=="reduced":
+                                        hay_registro="si"
                                         alicuota_reducida=alicuota_reducida+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                         base_reducida=base_reducida+det_lin.price_subtotal
                                     if alicuota_product=="additional":
+                                        hay_registro="si"
                                         alicuota_adicional=alicuota_adicional+(det_lin.price_subtotal_incl-det_lin.price_subtotal)
                                         base_adicional=base_adicional+det_lin.price_subtotal
                                     if alicuota_product=="exempt":
+                                        hay_registro="si"
                                         total_exento=total_exento+det_lin.price_subtotal
-
-                values={
-                
-                'session_id':self.id,
-                'fecha_fact':self.stop_at,
-                'reg_maquina':self.config_id.reg_maquina,
-                'nro_rep_z':nro_rep_z,
-                #'nro_doc':self.rango_nro_factura(),
-                'nro_doc_nc':rec.nro_nc_seniat,
-                'base_imponible_nc':self.conv_div_bs(base),
-                'alicuota_nc':self.conv_div_bs(total-base),
-                'total_nc':self.conv_div_bs(total),
-                'fact_afectada':self.fact_afectada(rec.id_order_afectado),
-                }
-                self.env['pos.order.line.resumen'].create(values)
+                if hay_registro=="si":
+                    values={
+                    'session_id':self.id,
+                    'fecha_fact':self.stop_at,
+                    'reg_maquina':self.config_id.reg_maquina,
+                    'nro_rep_z':nro_rep_z,
+                    #'nro_doc':self.rango_nro_factura(),
+                    'nro_doc_nc':rec.nro_nc_seniat,
+                    'base_imponible_nc':self.conv_div_bs(base),
+                    'alicuota_nc':self.conv_div_bs(total-base),
+                    'total_nc':self.conv_div_bs(total),
+                    'fact_afectada':self.fact_afectada(rec.id_order_afectado),
+                    }
+                    self.env['pos.order.line.resumen'].create(values)
 
 
     def fact_afectada(self,id_afectado):
@@ -277,8 +292,8 @@ class PosSession(models.Model):
     def rango_nro_factura(self):
         valor_ini=valor_fin=0
         lista_pos_order = self.env['pos.order']
-        lista=lista_pos_order.search([('session_id','=',self.id),('amount_total','>',0)],order="id desc")
-        lista2=lista_pos_order.search([('session_id','=',self.id),('amount_total','>',0)],order="id asc")
+        lista=lista_pos_order.search([('session_id','=',self.id),('amount_total','>',0),('status_impresora','=','si')],order="id desc")
+        lista2=lista_pos_order.search([('session_id','=',self.id),('amount_total','>',0),('status_impresora','=','si')],order="id asc")
         for dett in lista:
             valor_ini=dett.nro_fact_seniat
         for det in lista2:
@@ -308,6 +323,13 @@ class PosSession(models.Model):
         return resultado
 
     def ejecuta_resumen(self):
+        self.env['pos.order.line.resumen'].search([('session_id','=',self.id)]).unlink()
+        #session = self.env['pos.session'].search([('state','=','closed')])
+        nro_rep_z=self.suma_alicuota_iguales_iva()
+        self.suma_alicuota_iguales_iva_devolucion(nro_rep_z)
+        self.mensaje()
+
+    """def ejecuta_resumen(self):
         self.env['pos.order.line.resumen'].search([]).unlink()
         session = self.env['pos.session'].search([('state','=','closed')])
         #raise UserError(_('lista_session=%s')%lista_session)
@@ -373,7 +395,7 @@ class PosSession(models.Model):
                 'reg_maquina':selff.config_id.reg_maquina,
                 'nro_rep_z':selff.get_nro_rep_z(),
                 }
-            selff.env['pos.order.line.resumen'].create(values)
+            selff.env['pos.order.line.resumen'].create(values)"""
 
     def get_nro_rep_z(self):
         '''metodo que crea el Nombre del asiento contable si la secuencia no esta creada, crea una con el

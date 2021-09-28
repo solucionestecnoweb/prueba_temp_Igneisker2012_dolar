@@ -22,14 +22,13 @@ class CurrencyRate(models.Model):
             tasa_real=self.rate_real
         rate = (1 /tasa_real)
         #raise UserError(_("Rate=%s")%rate)
-        self.rate = rate
+        #self.rate = rate #deshabilitado solo para isneiker
         lista_tasa = self.env['res.currency.rate'].search([('name','=',hoy)],order='id asc')
         for det in lista_tasa:
             lista_tasa.write({
                 'name': (datetime.now() - timedelta(days=(1))),
                 })
-        self.convercion_precio_product()
-        #self.name=datetime.now() - timedelta(days=(1))
+        #self.convercion_precio_product() #deshabilitado solo para isneiker
 
     def convercion_precio_product(self):
         lista_product = self.env['product.template'].search([('moneda_divisa_venta', '=', self.currency_id.id),('habilita_precio_div','=',True)],order='id asc')
