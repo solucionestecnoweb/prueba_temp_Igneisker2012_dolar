@@ -9,10 +9,28 @@
            <xpath expr="//field[@name='amount_total']" position="after">  
                                     
                 <field name="amount_total_signed_aux_bs" string="Total Bs" sum="amount_total_signed_aux_b"/>
+
               
             </xpath>
         </field>
     </record> 
+
+    <record id="pos_order_line_inerhit_conv" model="ir.ui.view">
+        <field name="name">pos.order.line.inerhit.conv</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+           <xpath expr="//form[1]/sheet[1]/notebook[1]/page[1]/field[@name='lines']/tree[1]/field[@name='price_unit']" position="after">
+            <field name="price_unit_aux" string="Precio Unit (Bs)"/>
+          </xpath>
+          <xpath expr="//form[1]/sheet[1]/notebook[1]/page[1]/field[@name='lines']/tree[1]/field[@name='price_subtotal']" position="after">
+            <field name="sub_neto_aux" string="Subtotal neto (Bs)"/>
+          </xpath>
+          <xpath expr="//form[1]/sheet[1]/notebook[1]/page[1]/field[@name='lines']/tree[1]/field[@name='price_subtotal_incl']" position="after">
+            <field name="sub_total_aux" string="SubTotal (Bs)"/>
+          </xpath>
+        </field>
+    </record>
 
     </data>
 </odoo> 

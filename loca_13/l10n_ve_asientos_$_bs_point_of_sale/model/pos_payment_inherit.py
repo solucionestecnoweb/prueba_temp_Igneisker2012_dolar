@@ -12,7 +12,12 @@ from odoo.exceptions import UserError, ValidationError
 class PosPayment(models.Model):
     _inherit = 'pos.payment'
 
-    amount_total_signed_aux_bs=fields.Float(compute="_compute_monto_conversion")
+    amount_total_signed_aux_bs=fields.Float(digits=(12, 2),compute="_compute_monto_conversion")
+    payment_date = fields.Datetime(string='Date',compute='_compute_fecha')
+
+    def _compute_fecha(self):
+        for selff in self:
+            selff.payment_date=selff.pos_order_id.date_order
 
     def _compute_monto_conversion(self):
         valor=0
