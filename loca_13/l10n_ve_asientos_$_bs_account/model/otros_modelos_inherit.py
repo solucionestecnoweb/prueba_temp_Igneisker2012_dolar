@@ -8,7 +8,18 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
 
+class ResCurrencyIgneisker(models.Model):
+    _name = 'res.currency.rates'
+    _order = "hora desc"
 
+    hora=fields.Date(default=lambda self: fields.Date.today(), required=True)
+    rate=fields.Float(digits=(12, 20),default=1.0)
+    activo=fields.Boolean(default=True)
+    currency_id=fields.Many2one('res.currency', default=lambda self: self.env.company.currency_secundaria_id.id)
+    usuario = fields.Char(compute='_compute_usuario')
+
+    def _compute_usuario(self):
+        self.usuario=self.env.user.partner_id.name
 
 class libro_ventas(models.TransientModel):
     _inherit = 'account.wizard.libro.ventas'
@@ -19,7 +30,7 @@ class libro_ventas(models.TransientModel):
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -38,7 +49,7 @@ class libro_ventas(models.TransientModel):
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -57,7 +68,7 @@ class LibroVentasModelo(models.Model):
         monto_factura=self.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('name','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -75,7 +86,7 @@ class VatRetentionInvoiceLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -115,7 +126,7 @@ class RetentionVat(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -127,7 +138,7 @@ class MunicipalityTaxLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -139,7 +150,7 @@ class MUnicipalityTax(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -153,7 +164,7 @@ class VatRetentionInvoiceLine(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.retention_id.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.retention_id.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -169,7 +180,7 @@ class RetentionVat(models.Model):
 
     def conv_moneda(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -177,7 +188,7 @@ class RetentionVat(models.Model):
 
     def conv_moneda_inv(self,valor):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',self.move_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(valor/det.rate)
@@ -271,7 +282,7 @@ class BsoftContratoReport2(models.TransientModel):
 
     def conv_moneda(self,valor,rec):
         resultado=0
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',rec.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',rec.invoice_id.date)],order='id ASC')
         if lista_tasa:
             for det in lista_tasa:
                 resultado=(det.rate*valor)
@@ -472,7 +483,7 @@ class WizardReport_1(models.TransientModel): # aqui declaro las variables del wi
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:
@@ -491,7 +502,7 @@ class WizardReport_2(models.TransientModel): # aqui declaro las variables del wi
         monto_factura=selff.invoice_id.amount_total
         valor_aux=0
         #raise UserError(_('moneda compañia: %s')%self.company_id.currency_id.id)
-        lista_tasa = self.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
+        lista_tasa = self.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.invoice_id.date)],order='id ASC')
         #raise UserError(_('lista_tasa: %s')%lista_tasa)
         if lista_tasa:
             for det in lista_tasa:

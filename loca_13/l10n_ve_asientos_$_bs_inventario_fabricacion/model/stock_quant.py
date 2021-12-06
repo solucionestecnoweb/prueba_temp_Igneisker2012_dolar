@@ -20,7 +20,7 @@ class StockQuant(models.Model):
         #self.amount_total_signed_aux_bs=valor
         self.env.company.currency_secundaria_id.id
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.value*det.rate

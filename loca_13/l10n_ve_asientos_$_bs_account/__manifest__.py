@@ -29,6 +29,8 @@
         'vista/res_company_inherit.xml',
         'vista/account_move_inherit.xml',  
         'vista/compro_ret_inherit.xml',
+        'vista/vista_tasa.xml',
+        'security/ir.model.access.csv',
         #'vista/pos_order_inherit.xml',
         #'vista/pos_payment_inherit.xml',
     ],

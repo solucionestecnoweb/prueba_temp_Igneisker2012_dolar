@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="tasa_form_view" model="ir.ui.view">
+            <field name="name">Tasa del dia</field>
+            <field name="model">res.currency.rates</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="actualiza_periodo" string="Actualizar Período" type="object"/>
+                    </header>
+
+                    <group col="6" colspan="4">
+                        <field name="hora" string="Fecha"/>
+                        <field name="rate" string="Fecha"/>
+                        <field name="currency_id" string="Tasa del Dia"/>
+                        <field name="activo" string="Activo"/>
+                        <field name="usuario"/>
+                    </group>
+                </form>
+            </field>
+    </record>
+    <!--  vista lista -->
+    <record id="tasa_tree" model="ir.ui.view">
+            <field name="name">tasa.tree</field>
+            <field name="model">res.currency.rates</field>
+            <field name="arch" type="xml">
+                <tree string="feriados" editable="bottom">
+                    <field name="hora" string="Fecha"/>
+                    <field name="rate" string="Tasa del Dia"/>
+                    <field name="currency_id" string="Moneda a convertir"/>
+                    <field name="activo" string="Activo"/>
+                    <field name="usuario"/>
+                </tree>
+            </field>
+    </record>
+  
+    <record id="tasa_menu" model="ir.actions.act_window">
+            <field name="name">Registro de tasa</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.currency.rates</field>
+            <!--field name="view_type">form</field-->
+            <field name="view_mode">tree,form</field>
+            <!--field name="act_window_id" ref="view_hr_payroll_hollydays_tree"/-->
+            <!--field name="context">{'readonly_by_pass': True}</field-->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+
+              </p><p>
+
+              </p>
+            </field>
+      </record>
+
+    <menuitem
+    id="registar_tasa"
+    name="Registrar Tasa" 
+    parent="point_of_sale.menu_point_of_sale"
+    action="tasa_menu"
+    sequence="10"/><!--parent="point_of_sale.menu_point_of_sale"-->
+ 
+
+      <!--menuitem
+        id="menu_tasa"
+        name="Tasa Divisa"
+        sequence="9"
+        groups="group_pos_manager,group_pos_user"
+        web_icon="fa fa-money,#FFFFFF,#2B8900"
+        /-->
+
+
+</odoo>

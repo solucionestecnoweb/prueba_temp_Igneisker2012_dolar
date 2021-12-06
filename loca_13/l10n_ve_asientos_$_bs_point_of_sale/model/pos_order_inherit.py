@@ -19,7 +19,7 @@ class PosOrder(models.Model):
         valor=0
         self.env.company.currency_secundaria_id.id
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date_order)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.date_order)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.amount_total*det.rate
@@ -46,7 +46,7 @@ class PosOrderLine(models.Model):
 
     def _compute_valor1(self):
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.price_unit*det.rate
@@ -54,7 +54,7 @@ class PosOrderLine(models.Model):
 
     def _compute_valor2(self):
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.price_subtotal*det.rate
@@ -62,7 +62,7 @@ class PosOrderLine(models.Model):
 
     def _compute_valor3(self):
         for selff in self:
-            lista_tasa = selff.env['res.currency.rate'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
+            lista_tasa = selff.env['res.currency.rates'].search([('currency_id', '=', self.env.company.currency_secundaria_id.id),('hora','<=',selff.order_id.date_order)],order='id ASC')
             if lista_tasa:
                 for det in lista_tasa:
                     valor=selff.price_subtotal_incl*det.rate
