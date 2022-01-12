@@ -36,6 +36,18 @@
             
         </field>
      </record>   
+
+     <record id="pos_payment_inerhit" model="ir.ui.view">
+        <field name="name">pos.payment.inerhit</field>
+        <field name="model">pos.payment</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="before">
+                <field name="payment_date_auxx"/>
+                <field name="payment_date"/>
+            </xpath>
+        </field>
+    </record>
     	 
 
   </data>

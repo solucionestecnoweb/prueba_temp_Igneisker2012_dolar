@@ -13,7 +13,7 @@
     'category': 'Campos adicionales en ficha ',
 
     # any module necessary for this one to work correctly
-    'depends': ['product','base', 'stock'],
+    'depends': ['product','base', 'stock',],
 
     # always loaded
     'data': [

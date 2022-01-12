@@ -195,8 +195,9 @@ class AccountMove(models.Model):
             #raise UserError(_('verf= %s')%verf)
             for det_verf in verf:
                 #raise UserError(_('det_verf.tax_ids.id= %s')%det_verf.tax_ids.id)
-                if not det_verf.tax_ids.id:
-                    raise UserError(_('Las Lineas de la Factura deben tener un tipo de alicuota o impuestos'))
+                var=det_verf.tax_ids.id
+                #if not det_verf.tax_ids.id:
+                    #raise UserError(_('Las Lineas de la Factura deben tener un tipo de alicuota o impuestos'))
             # ***** FIN VERIFICACION
             lista_impuesto = self.env['account.tax'].search([('type_tax_use','=',type_tax_use)])
             #('aliquot','not in',('general','exempt')

@@ -23,12 +23,8 @@ class Productos(models.Model):
     #uni_neg_id = fields.Many2one('stock.unidad.negocio')
     marca_comercial=fields.Char(string="Marca Comercial")
 
-"""class ModeloStock(models.Model):
-    _name = 'stock.modelo'
 
-    name=fields.Char()
-
-class TipoStock(models.Model):
+"""class TipoStock(models.Model):
     _name = 'stock.tipo'
 
     name=fields.Char()

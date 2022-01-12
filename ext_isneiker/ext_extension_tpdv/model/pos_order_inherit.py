@@ -43,3 +43,13 @@ class PosOrderLine(models.Model):
 
     status_impresora=fields.Char(related='order_id.status_impresora')
     tipo = fields.Char(related='order_id.tipo')
+
+class PosPayment(models.Model):
+    _inherit = 'pos.payment'
+
+    payment_date_auxx=fields.Datetime()
+
+    @api.constrains('payment_date_auxx')
+    def cambia_fecha(self):
+        for rec in self:
+            rec.payment_date=rec.payment_date_auxx

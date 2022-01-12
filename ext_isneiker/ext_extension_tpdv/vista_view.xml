@@ -7,8 +7,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='active']" position="before">  
                       
-                <field name="tipo_tasa" string="Tipo de Tasa" invisible="1"/>
-                <field name="tipe_taxe" string="Tipo de Tasa" invisible="1"/>
+                <field name="tipo_tasa" string="Tipo de Tasa" invisible="0"/>
+                <field name="tipe_taxe" string="Tipo de Tasa" invisible="0"/>
               
             </xpath>
             
