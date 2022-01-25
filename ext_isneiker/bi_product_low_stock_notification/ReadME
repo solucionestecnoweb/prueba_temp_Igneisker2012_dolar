@@ -1,0 +1,22 @@
+v13.0.0.1 :
+-> Added Configuration for checkng low stock in Products or Product variants.
+
+v13.0.0.2 :
+-> Added PDF Report as attachment to the low stock mail.
+
+v13.0.0.3 :
+-> Fix the issues mail does not send.
+
+v13.0.0.4
+--> Add company settings for low stock notification.
+--> Add third option for reorder rule qty notification.
+
+13.0.0.5==>fixed issue of cron is not running automatically.
+==>fixed issue of current user when cron run automatically.
+13.0.0.6 ==>fixed issue of "The alert is still being sent despite no products is actually low on stock"
+
+
+13.0.0.7 ==>fixed issue of minimum quantity for Individual for all products.
+13.0.0.8==>fixed issue of model in template for low stock notification.
+
+13.0.0.9 ==>added .pdf in name of attachment for low stock email.
